@@ -1,0 +1,11 @@
+# Station runtime state — per-session, not source
+.station/
+
+# Prose VM run artifacts, should never land in a project repo
+.prose/
+runs/
+.agents/prose/runs/
+
+# OS / editor cruft
+.DS_Store
+*.swp
