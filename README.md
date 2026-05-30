@@ -34,3 +34,5 @@ game for Station to generate, mutate, or remove.
 table by the `station-agent-docs-syncer` daemon. Do not hand-edit them — edit
 through the Station UI. The `*.STATION_AUTO_MANAGED_DO_NOT_EDIT.md` marker
 files document this.
+
+- 2026-05-30: Tab-2 concurrent plan-creation smoke test — a new plan was created from Tab 2 (run `k57c8afm8g98rnhzbpv93x7g4187qcgs`) while Tab 1 watched the Planning board; Tab 1 reflected the new plan live, without a manual refresh.
