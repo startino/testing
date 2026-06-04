@@ -44,14 +44,18 @@ const TRUTHY_TOKENS = new Set(["1", "true", "on", "yes"]);
  * performs no further reads of `process.env` or the config — re-running the
  * process is the only way to pick up new values.
  *
- * `flagsEnv` is the raw `FLAGS_ENV` string (or undefined); `env` is the imported
- * static config. We snapshot the whole `process.env` object reference so a
- * per-flag override lookup is a single targeted read (no full-env scan).
+ * `flagsEnv` is the raw `FLAGS_ENV` string (or undefined); `config` is the
+ * imported static config. `env` is a frozen SHALLOW COPY of `process.env`'s own
+ * enumerable keys taken at boot — NOT the live `process.env` reference — so a
+ * `FLAG_<NAME>` override mutated after module evaluation is NOT observed, and a
+ * per-flag override lookup stays a single targeted read off the snapshot (no
+ * full-env scan). This makes the FLAG_ layer honor read-once exactly as the
+ * FLAGS_ENV layer does: the boot snapshot is genuinely immutable.
  */
 const BOOT = Object.freeze({
   config: CONFIG,
   flagsEnv: process.env.FLAGS_ENV,
-  env: process.env,
+  env: Object.freeze({ ...process.env }),
 });
 
 /**
@@ -85,8 +89,9 @@ function parseOverride(raw) {
  *
  * @param {Record<string, Record<string, boolean>>} config the env->flags map
  * @param {string|undefined} flagsEnv the selected environment name (raw FLAGS_ENV)
- * @param {Record<string, string|undefined>} envBag the process.env bag (for the
- *   single targeted `FLAG_<NAME>` lookup)
+ * @param {Record<string, string|undefined>} envBag the frozen boot snapshot of
+ *   `process.env` (for the single targeted `FLAG_<NAME>` lookup) — NOT the live
+ *   global, so this stays pure over an immutable value
  * @param {string} name the queried flag name
  * @returns {boolean}
  */
