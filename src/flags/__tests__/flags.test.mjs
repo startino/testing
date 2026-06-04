@@ -186,6 +186,32 @@ test("truthy tokens enable via override regardless of case/whitespace", async ()
   }
 });
 
+// Read-once-at-boot for the FLAG_ layer: a post-boot mutation of
+// `process.env.FLAG_<NAME>` is NOT observed by an already-loaded module instance.
+// The override key is ABSENT at boot (so layer 1 abstains and the false config
+// default holds); setting it truthy AFTER import must not flip the same instance.
+test("post-boot FLAG_<NAME> mutation is not observed (read-once-at-boot)", async () => {
+  const overrideKey = `FLAG_${DISABLED_IN_KNOWN_ENV.toUpperCase()}`;
+  await withBootEnv(
+    {
+      FLAGS_ENV: KNOWN_ENV,
+      [overrideKey]: undefined, // absent at boot -> config default (false) holds
+    },
+    (isEnabled) => {
+      assert.equal(isEnabled(DISABLED_IN_KNOWN_ENV), false);
+      // Mutate the live global AFTER the module was evaluated. withBootEnv saved
+      // and will restore this key, so the mutation does not leak to other cases.
+      process.env[overrideKey] = "1";
+      // Same already-booted instance must STILL read its immutable boot snapshot.
+      assert.equal(
+        isEnabled(DISABLED_IN_KNOWN_ENV),
+        false,
+        "a FLAG_ override set after boot must not be observed by a loaded instance",
+      );
+    },
+  );
+});
+
 // A non-string / undefined name is fail-closed false and never throws.
 test("non-string name => false, no throw", async () => {
   await withBootEnv({ FLAGS_ENV: KNOWN_ENV }, (isEnabled) => {
