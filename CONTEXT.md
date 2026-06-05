@@ -15,6 +15,7 @@ _Avoid_: conflating with "feature flag (testing sandbox)"; this one is never an 
 **refresh model (sandbox flags)**:
 None at runtime. There is no long-lived process and no deploy in this sandbox; re-invoking the fresh Node process is the only refresh path. "Without redeploying" means changing behavior via the boot-time `process.env` override without editing and committing the checked-in config.
 _Avoid_: "hot-reload", "live reload", "watch" (explicitly rejected).
+_Scope:_ "no deploy in this sandbox" applies to the zero-dep flags/module track only; the `web/` SvelteKit app added per ADR 0002 does deploy (to Railway on push to `alpha`).
 
 **fail-closed (sandbox flags)**:
 The default at every layer: unknown or typo'd flag => `false`; a non-truthy or garbage `FLAG_<NAME>` => `false`; a missing `FLAGS_ENV` key resolves all flags to `false` with no thrown exception.

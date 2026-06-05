@@ -1,5 +1,14 @@
 <script lang="ts">
-	const year = new Date().getFullYear();
+	import { onMount } from 'svelte';
+
+	// Seeded from build time for the prerendered HTML, then corrected to the
+	// user's current year once mounted in the browser (onMount runs client-side
+	// only) so a stale prerendered build never freezes the copyright date.
+	let year = $state(new Date().getFullYear());
+
+	onMount(() => {
+		year = new Date().getFullYear();
+	});
 </script>
 
 <footer class="border-t">
