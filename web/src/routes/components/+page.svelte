@@ -181,7 +181,10 @@
 					<Avatar.Fallback>SV</Avatar.Fallback>
 				</Avatar.Root>
 				<Avatar.Root>
-					<Avatar.Image src="" alt="Fallback only" />
+					<Avatar.Image
+						src="https://example.com/does-not-exist.png"
+						alt="Fallback only"
+					/>
 					<Avatar.Fallback>ST</Avatar.Fallback>
 				</Avatar.Root>
 			</div>
