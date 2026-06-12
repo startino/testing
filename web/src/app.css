@@ -43,6 +43,18 @@
 	--font-mono:
 		ui-monospace, SFMono-Regular, 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono',
 		'Courier New', monospace;
+
+	--shiki-foreground: var(--foreground);
+	--shiki-background: transparent;
+	--shiki-token-constant: oklch(0.55 0.15 50);
+	--shiki-token-string: oklch(0.52 0.13 150);
+	--shiki-token-comment: var(--muted-foreground);
+	--shiki-token-keyword: oklch(0.55 0.2 18);
+	--shiki-token-parameter: oklch(0.5 0.1 230);
+	--shiki-token-function: oklch(0.5 0.16 270);
+	--shiki-token-string-expression: oklch(0.52 0.13 150);
+	--shiki-token-punctuation: var(--muted-foreground);
+	--shiki-token-link: var(--primary);
 }
 
 .dark {
@@ -78,6 +90,18 @@
 	--sidebar-accent-foreground: oklch(0.985 0 0);
 	--sidebar-border: oklch(1 0 0 / 10%);
 	--sidebar-ring: oklch(0.552 0.016 285.938);
+
+	--shiki-foreground: var(--foreground);
+	--shiki-background: transparent;
+	--shiki-token-constant: oklch(0.8 0.13 60);
+	--shiki-token-string: oklch(0.78 0.14 150);
+	--shiki-token-comment: var(--muted-foreground);
+	--shiki-token-keyword: oklch(0.74 0.16 18);
+	--shiki-token-parameter: oklch(0.78 0.1 230);
+	--shiki-token-function: oklch(0.75 0.13 270);
+	--shiki-token-string-expression: oklch(0.78 0.14 150);
+	--shiki-token-punctuation: var(--muted-foreground);
+	--shiki-token-link: var(--primary);
 }
 
 @theme inline {
@@ -136,5 +160,9 @@
 		font-feature-settings:
 			'rlig' 1,
 			'calt' 1;
+	}
+
+	.shiki {
+		font-family: var(--font-mono);
 	}
 }
