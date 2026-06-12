@@ -3,6 +3,7 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import SiteHeader from '$lib/components/site-header.svelte';
 	import SiteFooter from '$lib/components/site-footer.svelte';
+	import Toaster from '$lib/components/toaster.svelte';
 
 	let { children } = $props();
 </script>
@@ -15,4 +16,5 @@
 		{@render children?.()}
 	</main>
 	<SiteFooter />
+	<Toaster />
 </div>
