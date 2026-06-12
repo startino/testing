@@ -6,8 +6,11 @@ import { highlightToHtml } from '$lib/highlight';
 export const prerender = true;
 export const ssr = true;
 
-// Highlight in load() so it runs on the server during prerender. The browser receives
-// static, already-highlighted HTML; zero highlighting JS ships to the client.
+// Highlight in a SERVER load() so it runs only on the server (at prerender time). A
+// server load keeps the Shiki highlighter out of the client import graph entirely -- the
+// browser receives static, already-highlighted HTML and zero highlighting JS / WASM.
+// (A universal +page.ts load would pull `$lib/highlight` -> `shiki` into the client
+// bundle; a +page.server.ts load does not.)
 export async function load() {
 	const highlighted = await Promise.all(
 		snippets.map(async (s) => ({ ...s, html: await highlightToHtml(s.code, s.lang) }))
