@@ -7,6 +7,7 @@
 	const nav = [
 		{ href: '/', label: 'Home' },
 		{ href: '/components', label: 'Components' },
+		{ href: '/snippets', label: 'Snippets' },
 	];
 
 	const isActive = (href: string) =>
