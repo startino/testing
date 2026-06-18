@@ -84,7 +84,25 @@ Station-Run-Id / Station-Item-Id / Station-Project-Id all match
 station_context(). The actual SHA of this artifact's first commit and its
 captured git-log body are embedded below.
 
-<!-- COMMIT1_CAPTURE -->
+### Commit 1 -- actual capture
+
+**SHA:** `c34905f6e036a776c26c10134b3769bc3f02d7b6`
+
+`git log -1 --format=%B` of commit 1 (verbatim):
+
+    docs(verifications): record MCP run-identity propagation evidence
+    
+    Live verification that station MCP station_context() returns the full run-identity package (runId/itemId/projectId/orgId/programId) and that it propagates into commit attribution. See docs/verifications/0001-mcp-identity-propagation.md.
+    
+    Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+    
+    Station-Trailer-Version: 1
+    Station-Run-Id: k571vpyk0atfrcspjg6n38v1f188w6cb
+    Station-Item-Id: j579wn6ekgdgv6yk2rnxy6ckn188w8xe
+    Station-Project-Id: jx75hdtjz30edfd9tt1xnzchvd877ac8
+    Station-Org-Id: jd70cbrtvqndraj07ebe09a56d860esj
+    Station-Program-Id: jn79hsws851zcf9aj8v34j8fv9861e2v
+    
 
 ## Observations / caveats
 
