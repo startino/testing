@@ -1,5 +1,3 @@
-<script lang="ts"></script>
-
 <svelte:head>
 	<title>Hello -- Startino Testing Sandbox</title>
 </svelte:head>
