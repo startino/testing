@@ -42,11 +42,18 @@ const MS_PER_SECOND = 1000;
  * largest-to-smallest, at most one of each. Only `s` may carry one decimal digit.
  *
  * The ACCEPTED language is EXACTLY the language `formatDuration` emits — no
- * superset (D1). Two grammar constraints enforce that beyond the carry bounds:
- *   - No leading zeros on any count: a count is `0` alone OR a non-zero-led
- *     natural number. Days `[1-9]\d*|0`; hours `2[0-3]|1\d|\d`; minutes and the
- *     seconds integer `[1-5]\d|\d`. So "05m", "01s", "00m", "023h" all fail —
- *     `formatDuration` never pads.
+ * superset, no carve-out (D1). The grammar constraints, beyond the carry bounds:
+ *   - No leading zeros: a count is a single non-zero-led natural number.
+ *   - No zero count on d/h/m: `formatDuration` drops a zero leading/trailing
+ *     unit, so it never emits "0d"/"0h"/"0m". Days `[1-9]\d*`; hours
+ *     `2[0-3]|1\d|[1-9]` (1..23); minutes `[1-5]\d|[1-9]` (1..59). So "0d",
+ *     "0h", "0m", "05m", "023h" all fail.
+ *   - The seconds INTEGER part still allows 0 — `formatDuration` does emit the
+ *     lone "0s" (the all-zero total) and a zero-integer fraction like "0.5s".
+ *     `[1-5]\d|\d`. The zero-seconds-beside-a-larger-unit case ("1m 0s") is
+ *     forbidden by the carry never emitting it, enforced by a post-match guard
+ *     in `parseDuration` (a regex alone cannot condition the seconds group on
+ *     whether a larger unit matched).
  *   - The seconds decimal is a TRUE fraction `.1`..`.9` only (`(\.[1-9])?`),
  *     never an explicit `.0` and never two digits. `formatDuration` trims a
  *     trailing `.0` and emits at most one decimal, so "1.0s", "30.0s", and
@@ -54,7 +61,7 @@ const MS_PER_SECOND = 1000;
  *
  * Each unit is also bounded to the range `formatDuration` can emit so overflow
  * forms carried into the next-larger unit fail to match: days unbounded (days
- * never carry up), hours 0..23, minutes 0..59, seconds [0,60). That is why "90s",
+ * never carry up), hours 1..23, minutes 1..59, seconds [0,60). That is why "90s",
  * "60m", and "24h" all fail — `formatDuration` would have carried them. The
  * leading-space groups make the single-space join exact (no leading / trailing /
  * double spaces, and no token without its space).
@@ -62,7 +69,7 @@ const MS_PER_SECOND = 1000;
  * @type {RegExp}
  */
 const DURATION_RE =
-  /^(?:([1-9]\d*|0)d)?(?:(?:^|(?<=\d[dhm]) )(2[0-3]|1\d|\d)h)?(?:(?:^|(?<=\d[dh]) )([1-5]\d|\d)m)?(?:(?:^|(?<=\d[dhm]) )([1-5]\d|\d)(\.[1-9])?s)?$/;
+  /^(?:([1-9]\d*)d)?(?:(?:^|(?<=\d[dhm]) )(2[0-3]|1\d|[1-9])h)?(?:(?:^|(?<=\d[dh]) )([1-5]\d|[1-9])m)?(?:(?:^|(?<=\d[dhm]) )([1-5]\d|\d)(\.[1-9])?s)?$/;
 
 /**
  * Format a non-negative finite integer millisecond count into a compact human
@@ -79,7 +86,7 @@ const DURATION_RE =
  * @returns {string|null} the duration string, or `null` for invalid `ms`
  */
 export function formatDuration(ms, opts = {}) {
-  void opts; // reserved, ignored (forward-compat)
+  // `opts` is reserved for forward-compat — accepted and ignored (see JSDoc).
 
   // Fail-closed guards. Normalize -0 to 0 first so it is a valid input, not a
   // rejected negative.
@@ -141,9 +148,18 @@ export function parseDuration(str) {
   // optional `.1`..`.9` fraction (kept separate so the char class can forbid a
   // leading-zero integer independently of the decimal).
   const [, d, h, m, s, sDec] = match;
-  // The regex requires at least one token, but guard the all-empty match
-  // defensively (an empty string would otherwise match every optional group).
+  // The regex does NOT require at least one token — every group is optional, so
+  // the empty string matches with all groups undefined. This guard is therefore
+  // load-bearing: it rejects "" (and is the only thing that does).
   if (d === undefined && h === undefined && m === undefined && s === undefined) {
+    return null;
+  }
+
+  // `formatDuration` never emits a bare zero-seconds token ("0s") ALONGSIDE a
+  // larger unit (its `secText !== "0" || parts.length === 0` guard drops it), so
+  // the strict inverse rejects "1m 0s" / "1h 0s" / "1d 0s". A lone "0s" (no
+  // larger unit) and a zero-integer fraction ("0.5s") are both still valid.
+  if (s === "0" && sDec === undefined && (d !== undefined || h !== undefined || m !== undefined)) {
     return null;
   }
 

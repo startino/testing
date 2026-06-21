@@ -75,7 +75,7 @@ export const LOSSY_FORMAT = Object.freeze([
   { name: "999ms rounds up to one second", ms: 999, str: "1s" },
   { name: "1250ms rounds to 1.3s", ms: 1250, str: "1.3s" },
   { name: "149ms rounds to 0.1s", ms: 149, str: "0.1s" },
-  { name: "rounding carry: 59953ms rounds up to 15m", ms: 899953, str: "15m" },
+  { name: "rounding carry: 899953ms (59.953s remainder) rounds up to 15m", ms: 899953, str: "15m" },
 ]);
 
 /**
@@ -133,6 +133,15 @@ export const BAD_PARSE = Object.freeze([
   { name: "explicit .0 on zero seconds", str: "0.0s" },
   { name: "explicit .0 on multi-digit seconds", str: "30.0s" },
   { name: "leading-zero plus explicit .0", str: "00.0s" },
+  { name: "zero-count days", str: "0d" },
+  { name: "zero-count hours", str: "0h" },
+  { name: "zero-count minutes", str: "0m" },
+  { name: "zero-count day beside hour", str: "0d 1h" },
+  { name: "zero seconds beside a minute", str: "1m 0s" },
+  { name: "zero minutes beside an hour", str: "1h 0m" },
+  { name: "zero seconds beside an hour", str: "1h 0s" },
+  { name: "zero seconds beside a day", str: "1d 0s" },
+  { name: "zero minutes and seconds beside an hour", str: "1h 0m 0s" },
   { name: "empty string", str: "" },
   { name: "whitespace only", str: "   " },
   { name: "bare number", str: "5" },
