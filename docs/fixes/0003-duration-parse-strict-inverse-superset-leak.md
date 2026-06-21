@@ -9,8 +9,8 @@ made the parser a lenient SUPERSET of the emitted language, violating D1 (the
 locked, load-bearing decision: strict inverse, no superset, everything else
 fails closed to null). The module's own grammar header, README, and CONTEXT all
 already described the strict language correctly -- only the regex disagreed.
-**Affected:** `src/duration/duration.mjs:DURATION_RE` (the minute/second digit
-char classes and the seconds-decimal group)
+**Affected:** `src/duration/duration.mjs:72` (the `DURATION_RE` literal — the
+minute/second digit char classes and the seconds-decimal group)
 **Root cause:** the regex char classes were laxer than the grammar they were meant
 to encode. `([0-5]?\d)m` and `([0-5]?\d(?:\.\d)?)s`: the optional `[0-5]?` let a
 `0` precede any digit (admitting `00`/`01`/`05`), and the `(?:\.\d)?` decimal group

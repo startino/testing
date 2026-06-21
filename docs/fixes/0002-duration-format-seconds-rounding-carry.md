@@ -7,8 +7,8 @@ module's own strict `parseDuration` correctly rejects (`parseDuration("14m 60s")
 === null`) -- so the format step produced a string outside the grammar it
 promises, breaking the grid-fixpoint invariant `formatDuration(parseDuration(f))
 === f`.
-**Affected:** `src/duration/duration.mjs:formatDuration` (the decompose-then-round
-ordering)
+**Affected:** `src/duration/duration.mjs:102` (the `formatDuration` round-to-grid
+step, formerly the decompose-then-round ordering)
 **Root cause:** the seconds component was rounded to one decimal place AFTER the
 integer d/h/m components were already taken. `899953 ms` -> `minutes = floor(899953
 / 60000) = 14`, remainder `59953 ms` -> `seconds = 59.953` -> `toFixed(1)` rounds
