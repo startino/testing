@@ -40,8 +40,20 @@ const MS_PER_SECOND = 1000;
  * Strict grammar of a duration string, anchored to the whole input. Each unit is
  * optional but at least one must be present; tokens are single-space-joined,
  * largest-to-smallest, at most one of each. Only `s` may carry one decimal digit.
- * Each unit is bounded to the range `formatDuration` can emit so overflow forms
- * carried into the next-larger unit fail to match: days unbounded (`\d+`, days
+ *
+ * The ACCEPTED language is EXACTLY the language `formatDuration` emits — no
+ * superset (D1). Two grammar constraints enforce that beyond the carry bounds:
+ *   - No leading zeros on any count: a count is `0` alone OR a non-zero-led
+ *     natural number. Days `[1-9]\d*|0`; hours `2[0-3]|1\d|\d`; minutes and the
+ *     seconds integer `[1-5]\d|\d`. So "05m", "01s", "00m", "023h" all fail —
+ *     `formatDuration` never pads.
+ *   - The seconds decimal is a TRUE fraction `.1`..`.9` only (`(\.[1-9])?`),
+ *     never an explicit `.0` and never two digits. `formatDuration` trims a
+ *     trailing `.0` and emits at most one decimal, so "1.0s", "30.0s", and
+ *     "1.55s" all fail.
+ *
+ * Each unit is also bounded to the range `formatDuration` can emit so overflow
+ * forms carried into the next-larger unit fail to match: days unbounded (days
  * never carry up), hours 0..23, minutes 0..59, seconds [0,60). That is why "90s",
  * "60m", and "24h" all fail — `formatDuration` would have carried them. The
  * leading-space groups make the single-space join exact (no leading / trailing /
@@ -50,7 +62,7 @@ const MS_PER_SECOND = 1000;
  * @type {RegExp}
  */
 const DURATION_RE =
-  /^(?:(\d+)d)?(?:(?:^|(?<=\d[dhm]) )(2[0-3]|1\d|\d)h)?(?:(?:^|(?<=\d[dh]) )([0-5]?\d)m)?(?:(?:^|(?<=\d[dhm]) )([0-5]?\d(?:\.\d)?)s)?$/;
+  /^(?:([1-9]\d*|0)d)?(?:(?:^|(?<=\d[dhm]) )(2[0-3]|1\d|\d)h)?(?:(?:^|(?<=\d[dh]) )([1-5]\d|\d)m)?(?:(?:^|(?<=\d[dhm]) )([1-5]\d|\d)(\.[1-9])?s)?$/;
 
 /**
  * Format a non-negative finite integer millisecond count into a compact human
@@ -125,7 +137,10 @@ export function parseDuration(str) {
   const match = DURATION_RE.exec(str);
   if (!match) return null;
 
-  const [, d, h, m, s] = match;
+  // Seconds is captured in two groups: `s` is the integer part, `sDec` the
+  // optional `.1`..`.9` fraction (kept separate so the char class can forbid a
+  // leading-zero integer independently of the decimal).
+  const [, d, h, m, s, sDec] = match;
   // The regex requires at least one token, but guard the all-empty match
   // defensively (an empty string would otherwise match every optional group).
   if (d === undefined && h === undefined && m === undefined && s === undefined) {
@@ -136,7 +151,7 @@ export function parseDuration(str) {
   if (d !== undefined) ms += Number(d) * MS_PER_DAY;
   if (h !== undefined) ms += Number(h) * MS_PER_HOUR;
   if (m !== undefined) ms += Number(m) * MS_PER_MINUTE;
-  if (s !== undefined) ms += Math.round(Number(s) * MS_PER_SECOND);
+  if (s !== undefined) ms += Math.round(Number(s + (sDec ?? "")) * MS_PER_SECOND);
 
   return ms;
 }
