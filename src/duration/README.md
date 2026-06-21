@@ -81,9 +81,22 @@ the summed milliseconds.
 
 ## Test
 
+From the repo root (zero deps):
+
 ```sh
-cd src/duration && npm test      # node --test (zero deps)
+npm test --prefix src/duration
 ```
+
+or from inside `src/duration/`:
+
+```sh
+node --test
+```
+
+> Do **not** pass a bare directory to `node --test` (e.g.
+> `node --test __tests__/`): on Node 24 that fails with `MODULE_NOT_FOUND`. Use
+> bare `node --test` (auto-discovers `*.test.mjs`), an explicit glob, or an
+> explicit file path.
 
 All inputs/expectations live once in [`fixtures.mjs`](./fixtures.mjs); the suite in
 [`__tests__/duration.test.mjs`](./__tests__/duration.test.mjs) is table-driven over

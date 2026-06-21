@@ -70,12 +70,28 @@ for (const { name, str } of BAD_PARSE) {
   });
 }
 
-// Purity / determinism: same input, same output across repeated calls (no I/O,
-// no time, no random, no shared mutable state).
-test("pure: repeated calls are deterministic", () => {
+// Purity: formatDuration must not mutate the opts object it is handed (the
+// reserved param is read-only — a frozen opts proves nothing is written to it).
+test("pure: formatDuration does not mutate its opts argument", () => {
+  const opts = Object.freeze({});
+  assert.doesNotThrow(() => formatDuration(1500, opts)); // a write would throw in strict mode
+  const opts2 = { sentinel: 1 };
+  formatDuration(90000, opts2);
+  assert.deepEqual(opts2, { sentinel: 1 }); // untouched
+});
+
+// Purity: format and parse share no cross-call mutable state. Interleaving the
+// two (and repeating each) must not perturb either result — this would fail if,
+// say, the parse regex carried a `g`-flag `lastIndex` that advanced between
+// calls, or either function memoized into shared scope.
+test("pure: format and parse hold no shared state across interleaved calls", () => {
   for (const { ms, str } of ROUND_TRIP) {
-    assert.equal(formatDuration(ms), formatDuration(ms));
-    assert.equal(parseDuration(str), parseDuration(str));
+    const f1 = formatDuration(ms);
+    const p1 = parseDuration(str);
+    parseDuration("1h 1m 1.5s"); // unrelated parse between the two reads
+    formatDuration(3661000); // unrelated format between the two reads
+    assert.equal(formatDuration(ms), f1);
+    assert.equal(parseDuration(str), p1);
   }
 });
 
