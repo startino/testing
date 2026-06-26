@@ -114,6 +114,53 @@ test("pure: format and parse hold no shared state across interleaved calls", () 
   }
 });
 
+// Strict-inverse / no-superset law: parseBytes accepts a string IFF it is the
+// canonical rendering formatBytes emits for the byte count it denotes. We prove
+// this directly via the canonicalization invariant — for any non-null parse, the
+// string MUST round-trip back through format unchanged; and for the formerly
+// leaking non-canonical spellings, parse rejects (they are in BAD_PARSE, but we
+// also assert the structural reason here so a regression is unambiguous).
+test("strict inverse: a parsed string is always its own canonical format output", () => {
+  const accepted = ["0 B", "512 B", "1 KiB", "1.5 KiB", "1 MiB", "1.5 GiB", "1 PiB", "7.5 PiB"];
+  for (const str of accepted) {
+    const bytes = parseBytes(str);
+    assert.notEqual(bytes, null, `expected ${str} to parse`);
+    // The canonicalization invariant: the only strings parse accepts are exactly
+    // those format re-emits verbatim.
+    assert.equal(formatBytes(bytes), str);
+  }
+});
+
+test("strict inverse: non-canonical spellings of a real count all reject (no superset)", () => {
+  // Each denotes a meaningful byte count, but is NOT format's image of it.
+  const nonCanonical = [
+    ["0 KiB", 0], ["0 PiB", 0], ["0.5 KiB", 512], ["0.25 GiB", 268435456],
+    ["2048 KiB", 2097152], ["1536 KiB", 1572864], ["1024 MiB", 1073741824],
+    ["1024 KiB", 1048576], // a real lossy format output, still non-canonical for its parse value
+  ];
+  for (const [str, count] of nonCanonical) {
+    assert.equal(parseBytes(str), null, `${str} must reject as non-canonical`);
+    // And the reason: format of that count is a DIFFERENT string.
+    assert.notEqual(formatBytes(count), str);
+  }
+});
+
+// Ceiling symmetry: format and parse share the domain [0, MAX_SAFE_INTEGER]. A
+// byte count at/above 2**53 is rejected on BOTH sides; format never emits a clean
+// string that its own inverse rejects (any such top-end string is a lossy round).
+test("ceiling symmetry: 2**53 (8 PiB) rejects on both sides", () => {
+  assert.equal(formatBytes(2 ** 53), null); // format rejects non-safe n
+  assert.equal(parseBytes("8 PiB"), null); // parse rejects 2**53 byte count
+  // The largest exactly-representable safe-integer anchor still round-trips.
+  assert.equal(formatBytes(7 * 1024 ** 5), "7 PiB");
+  assert.equal(parseBytes("7 PiB"), 7 * 1024 ** 5);
+  // formatBytes(MAX_SAFE) is a LOSSY "8 PiB" (MAX_SAFE is 7.999... PiB); being
+  // off-grid it is format-direction-only and does NOT reparse — the round-trip
+  // law holds on the lossless grid only.
+  assert.equal(formatBytes(Number.MAX_SAFE_INTEGER), "8 PiB");
+  assert.equal(parseBytes(formatBytes(Number.MAX_SAFE_INTEGER)), null);
+});
+
 // Format always returns a string for valid input and null for invalid — never
 // any other type, never a throw. Includes hostile inputs.
 test("format return type is string-or-null, never throws", () => {
