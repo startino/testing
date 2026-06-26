@@ -146,8 +146,10 @@ export const BAD_FORMAT = Object.freeze([
 /**
  * `opts.decimals` values `formatBytes` must fail closed (return `null`) on. Only
  * a truly absent `decimals` (`undefined` / omitted) uses the default; any present
- * value must be a non-negative finite integer. `null` is a wrong-type value, not
- * a "use the default" sentinel, so it fails closed.
+ * value must be an integer in `toFixed`'s `[0, 100]` range. `null` is a wrong-type
+ * value, not a "use the default" sentinel, so it fails closed. The above-100 cases
+ * are load-bearing: `Number.prototype.toFixed` THROWS a RangeError past 100, and
+ * "never throws" is a hard contract — they must fail closed, not throw.
  *
  * @type {ReadonlyArray<{ name: string, decimals: * }>}
  */
@@ -164,6 +166,31 @@ export const BAD_DECIMALS = Object.freeze([
   { name: "array decimals", decimals: [] },
   { name: "boolean decimals", decimals: true },
   { name: "bigint decimals", decimals: 2n },
+  // Above the toFixed ceiling of 100 -> would throw RangeError; must fail closed.
+  { name: "decimals just above the toFixed ceiling (101)", decimals: 101 },
+  { name: "decimals far above the ceiling (1e9)", decimals: 1e9 },
+  { name: "decimals at MAX_SAFE_INTEGER", decimals: Number.MAX_SAFE_INTEGER },
+]);
+
+/**
+ * Malformed `opts` arguments (the OPTIONS object itself, not `opts.decimals`)
+ * `formatBytes` must fail closed (return `null`) on — never throw. Only an OMITTED
+ * opts (`undefined`) uses defaults; a non-object opts is a malformed argument. The
+ * `null` case is the load-bearing one: a `opts = {}` default param only triggers
+ * on `undefined`, so `null` would slip through to a `.decimals` read and throw a
+ * TypeError without this guard. Arrays are rejected too (an array is not a usable
+ * options object even though `typeof [] === "object"`).
+ *
+ * @type {ReadonlyArray<{ name: string, opts: * }>}
+ */
+export const BAD_OPTS = Object.freeze([
+  { name: "null opts (would throw on .decimals without the guard)", opts: null },
+  { name: "number opts", opts: 42 },
+  { name: "string opts", opts: "decimals" },
+  { name: "boolean opts", opts: true },
+  { name: "bigint opts", opts: 10n },
+  { name: "array opts", opts: [] },
+  { name: "array opts with a decimals-ish index", opts: [2] },
 ]);
 
 /**

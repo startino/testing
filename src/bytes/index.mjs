@@ -34,8 +34,11 @@
 // fail-closed contract: neither function throws and neither guesses.
 //   - formatBytes returns null on any non-finite, negative, non-integer, or
 //     non-SAFE-integer Number, and on any non-Number type; it also returns null
+//     for a malformed `opts` (non-object: null / number / string / array / …) and
 //     for an invalid `opts.decimals` (negative / non-integer / non-finite /
-//     wrong-type).
+//     wrong-type / above the toFixed ceiling of 100). It NEVER throws — neither a
+//     `null` opts nor an out-of-range decimals reaches a `.decimals` read or a
+//     `toFixed` call.
 //   - parseBytes returns null on any input that is not the canonical default
 //     rendering of some safe-integer byte count: empty/whitespace, unknown or
 //     missing unit, missing number, negative, multiple units, non-string input, a
@@ -73,6 +76,13 @@ const MAX_UNIT_INDEX = UNITS.length - 1;
  * "1.0 KiB"; 1536 -> "1.5 KiB". @type {number}
  */
 const DEFAULT_DECIMALS = 1;
+
+/**
+ * Upper bound for `opts.decimals`. `Number.prototype.toFixed` only accepts a
+ * digits argument in [0, 100] and THROWS a RangeError outside it; we fail closed
+ * at that ceiling so `formatBytes` keeps its "never throws" contract. @type {number}
+ */
+const MAX_DECIMALS = 100;
 
 /**
  * Cheap structural SCREEN for a byte string, anchored to the whole input: a
@@ -124,13 +134,16 @@ function trimTrailingZeros(value, decimals) {
  * closed.
  *
  * @param {number} n non-negative safe-integer byte count (0..Number.MAX_SAFE_INTEGER)
- * @param {{ decimals?: number }} [opts]
- *   - `decimals` (default 1): max decimal places for non-byte units; trailing
- *     zeros are trimmed regardless, so it is a precision cap, not a fixed width.
- *     Bytes (`B`) are always integers and ignore this.
+ * @param {{ decimals?: number }} [opts] an options object, or omitted/`undefined`.
+ *   A non-object opts (`null`, a number, string, boolean, bigint, array, …) is a
+ *   malformed argument and fails closed to `null` — it is NOT a "use defaults"
+ *   sentinel.
+ *   - `decimals` (default 1): max decimal places for non-byte units, in the range
+ *     `[0, 100]` (the `toFixed` ceiling); trailing zeros are trimmed regardless,
+ *     so it is a precision cap, not a fixed width. Bytes (`B`) ignore this.
  * @returns {string|null} the IEC string, or `null` for invalid input
  */
-export function formatBytes(n, opts = {}) {
+export function formatBytes(n, opts) {
   // Fail-closed guards on the byte count. Normalize -0 to +0 first so it is a
   // valid input, not a rejected value. `Number.isSafeInteger` already implies
   // finite + integer, and rejects anything past 2**53 so format and parse share
@@ -139,16 +152,25 @@ export function formatBytes(n, opts = {}) {
   if (n === 0) n = 0; // collapses -0 to +0
   if (!Number.isSafeInteger(n) || n < 0) return null;
 
+  // Fail-closed guard on `opts` itself. Only an OMITTED opts (`undefined`) falls
+  // back to defaults; a non-object opts (`null` — which a `= {}` default param
+  // would let slip through to a `.decimals` read and throw — or a number / string
+  // / boolean / bigint / array) is a malformed argument, not a defaults sentinel.
+  if (opts === undefined) opts = {};
+  if (opts === null || typeof opts !== "object" || Array.isArray(opts)) return null;
+
   // Fail-closed guard on the decimals option. ONLY a truly absent `decimals`
   // (`undefined`, i.e. the key omitted) falls back to the default; any PRESENT
-  // value — including `null` — must be a non-negative finite integer or we fail
-  // closed. (`null` is a wrong-type value, not a "use the default" sentinel.)
+  // value — including `null` — must be an integer in `toFixed`'s `[0, 100]` range
+  // or we fail closed. The upper bound is load-bearing: `toFixed` THROWS a
+  // RangeError above 100, and "never throws" is a hard contract. (`null` is a
+  // wrong-type value, not a "use the default" sentinel.)
   const decimals = opts.decimals === undefined ? DEFAULT_DECIMALS : opts.decimals;
   if (
     typeof decimals !== "number" ||
-    !Number.isFinite(decimals) ||
-    !Number.isInteger(decimals) ||
-    decimals < 0
+    !Number.isInteger(decimals) || // implies finite (NaN/Infinity are not integers)
+    decimals < 0 ||
+    decimals > MAX_DECIMALS
   ) {
     return null;
   }
