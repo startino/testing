@@ -6,9 +6,12 @@ established by [`src/unicode/`](../unicode/), [`src/slug/`](../slug/),
 [`src/flags/`](../flags/), and [`src/duration/`](../duration/).
 
 `formatBytes` emits a human-readable **IEC byte string** (base 1024 units `B`,
-`KiB`, `MiB`, `GiB`, `TiB`, `PiB`); `parseBytes` is its **strict inverse** — it
-accepts only the grammar `formatBytes` emits and fails closed (`null`) on
-everything else.
+`KiB`, `MiB`, `GiB`, `TiB`, `PiB`); `parseBytes` is its **true strict inverse** —
+it accepts a string **iff** that string is exactly what `formatBytes` emits for
+the byte count it denotes, and fails closed (`null`) on everything else. There is
+no superset: a non-canonical spelling of a real count (`"0.5 KiB"`, `"2048 KiB"`,
+`"0 PiB"`) is rejected in favour of its canonical form (`"512 B"`, `"2 MiB"`,
+`"0 B"`). Both functions share one domain, `[0, Number.MAX_SAFE_INTEGER]`.
 
 ## API
 
@@ -30,10 +33,13 @@ parseBytes("0 B");                       // 0
 parseBytes("1 KiB");                     // 1024
 parseBytes("1.5 KiB");                   // 1536
 parseBytes("1 MiB");                     // 1048576
-parseBytes("0.5 KiB");                   // 512
+parseBytes("0.5 KiB");                   // null      (non-canonical: 512's form is "512 B")
+parseBytes("2048 KiB");                  // null      (non-canonical: carries to "2 MiB")
+parseBytes("0 PiB");                     // null      (non-canonical: zero's form is "0 B")
 parseBytes("1 KB");                      // null      (fail-closed: SI, not IEC)
 parseBytes("1024");                      // null      (fail-closed: unit required)
 parseBytes("1.5 B");                     // null      (fail-closed: non-integer bytes)
+parseBytes("8 PiB");                     // null      (fail-closed: 2**53, not a safe integer)
 ```
 
 ### `formatBytes(n, opts?) -> string | null`
@@ -43,7 +49,7 @@ string.
 
 | step | what it does |
 | --- | --- |
-| guard | non-Number / non-finite / negative / non-integer `n` -> `null`; `-0` normalized to `0` |
+| guard | non-Number / non-finite / negative / non-integer / **non-safe-integer** `n` -> `null`; `-0` normalized to `0` |
 | guard | invalid `opts.decimals` (negative / non-integer / non-finite / wrong-type) -> `null` |
 | pick unit | divide by 1024 repeatedly to the largest unit with magnitude >= 1, **capped at PiB** (a value in or above the PiB range stays in PiB — no EiB is invented) |
 | bytes | the `B` unit is **always a plain integer**, rendered with no decimal regardless of `decimals` |
@@ -61,37 +67,59 @@ string.
 
 ### `parseBytes(str) -> number | null`
 
-The strict inverse: parses exactly the grammar `formatBytes` emits and returns
-the integer byte count.
+The **true strict inverse**. It accepts `str` **iff** `str` is exactly the
+string `formatBytes` emits (at default precision) for the byte count `str`
+denotes — and returns that count. This is enforced by **canonicalization**, not
+by trusting a grammar: after a cheap regex screen and a safe-integer-bytes check,
+it recomputes `formatBytes(bytes)` and rejects unless that reproduces the input
+verbatim. A superset leak is therefore **structurally impossible** — format's
+image *is* the accepted language.
 
-- Accepts `<number> <UNIT>` — a non-negative decimal number, **one** ASCII
-  space, then one IEC unit token (`B`, `KiB`, `MiB`, `GiB`, `TiB`, `PiB`). The
-  number is canonical: no leading zeros, no trailing-zero fraction, no leading or
-  trailing dot, no sign, no exponent (the forms `formatBytes` never emits).
-- A **unit token is required**. A bare number with no unit (`"1024"`) is **not**
-  part of the grammar, so it fails closed — this keeps `parseBytes` a clean
-  strict inverse of `formatBytes`, which always emits a unit.
-- The computed byte count must be a **true integer**: `"0.5 KiB"` is `512` (an
-  integer, accepted), but `"1.5 B"` is `1.5` bytes (not an integer, `null`).
+Consequences:
+
+- A **unit token is required** (`"1024"` -> `null`).
+- The byte count must be a **non-negative safe integer**: `"1.5 B"` -> `1.5`
+  bytes (non-integer, `null`); `"8 PiB"` -> `2**53` (non-safe, `null`).
+- **Every non-canonical spelling of a real count is rejected** in favour of its
+  canonical form — `"0 KiB"`/`"0 PiB"` (canonical `"0 B"`), `"0.5 KiB"`
+  (`"512 B"`), `"0.25 GiB"` (`"256 MiB"`), `"2048 KiB"` (`"2 MiB"`),
+  `"1024 MiB"` (`"1 GiB"`), and non-canonical number spellings (`"01 KiB"`,
+  `"1.50 KiB"`, `".5 KiB"`).
+- A **lossy** format output is also rejected: `formatBytes(1048575)` is
+  `"1024 KiB"`, but `parseBytes("1024 KiB")` would be `1048576` whose canonical
+  form is `"1 MiB"` -> `null`. The round-trip identity holds on the lossless grid
+  only (see below).
 - Everything else fails closed to `null`: unknown units (`"1 KB"`, `"1 foo"`),
   missing number or unit, multiple units, whitespace/empty, wrong case
   (`"1 kib"`), and non-string input.
-- It is **not** a lenient human-input parser; rejecting those forms is the point.
+- It is **not** a lenient human-input or canonical-superset parser; rejecting
+  those forms is the contract.
 
 ## Properties
 
 - **Pure & stateless** — no I/O, no globals, no time/random. Same input, same output.
+- **One shared domain** — both functions live on `[0, Number.MAX_SAFE_INTEGER]`.
+  `formatBytes` rejects a non-safe-integer `n` rather than emit a string its own
+  inverse could not trust, and `parseBytes` rejects a string whose byte count is
+  non-safe. So `formatBytes(2**53) === null` and `parseBytes("8 PiB") === null`,
+  symmetrically.
 - **Fail-closed** — both functions return `null` on bad input and never throw:
-  `formatBytes` on non-Number / non-finite / negative / non-integer `n` (and bad
-  `decimals`); `parseBytes` on any string outside the strict grammar.
+  `formatBytes` on non-Number / non-finite / negative / non-integer /
+  non-safe-integer `n` (and bad `decimals`); `parseBytes` on any string that is
+  not the canonical default rendering of a safe-integer byte count.
+- **Strict-inverse / no-superset (true)** — `parseBytes` accepts a string **iff**
+  `formatBytes(parseBytes(str)) === str`. The accepted language is *exactly*
+  format's image; there is no separate grammar to drift into a superset, so the
+  bug class of accepting non-emitted forms cannot occur.
 - **Round-trip law (honest)** — `parseBytes(formatBytes(n)) === n` holds for
   every `n` the format encodes **losslessly**: `0`, exact unit multiples at every
   scale, and clean fractions that land on a representable decimal grid
   (`1536` <-> `"1.5 KiB"`). The default one-decimal render **is lossy off that
-  grid** (`formatBytes(1048575)` is `"1024 KiB"`, which reparses to `1048576`),
-  so `parse(format(x)) === x` is **not** promised for arbitrary `x` — only for
-  the grid the format encodes exactly. Those lossy cases are pinned as
-  format-direction behavior, never smuggled into a false identity claim.
+  grid** (`formatBytes(1048575)` is `"1024 KiB"`), and those lossy strings are
+  **format-direction-only** — `parseBytes` rejects them too, because they are not
+  the canonical rendering of the count they would parse to. So
+  `parse(format(x)) === x` is **not** promised for arbitrary `x` — only for the
+  lossless grid, where format's output already is canonical.
 - **Zero-dependency doctrine** — strictly stdlib (`Number.prototype.toFixed`, one
   static `RegExp`); no install, no build step. The test suite uses Node's
   built-in `node:test` + `node:assert/strict`, adding no dependency either.
