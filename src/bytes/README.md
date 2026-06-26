@@ -28,6 +28,8 @@ formatBytes(-1);                         // null      (fail-closed: negative)
 formatBytes(1.5);                        // null      (fail-closed: non-integer)
 formatBytes(NaN);                        // null      (fail-closed: non-finite)
 formatBytes(1536, { decimals: -1 });     // null      (fail-closed: bad decimals)
+formatBytes(1536, { decimals: 101 });    // null      (fail-closed: above toFixed's ceiling, no throw)
+formatBytes(1024, null);                 // null      (fail-closed: malformed opts, no throw)
 
 parseBytes("0 B");                       // 0
 parseBytes("1 KiB");                     // 1024
@@ -50,7 +52,8 @@ string.
 | step | what it does |
 | --- | --- |
 | guard | non-Number / non-finite / negative / non-integer / **non-safe-integer** `n` -> `null`; `-0` normalized to `0` |
-| guard | invalid `opts.decimals` (negative / non-integer / non-finite / wrong-type) -> `null` |
+| guard | malformed `opts` (non-object: `null` / number / string / array / …) -> `null` |
+| guard | invalid `opts.decimals` (negative / non-integer / non-finite / wrong-type / **above the `toFixed` ceiling of 100**) -> `null` |
 | pick unit | divide by 1024 repeatedly to the largest unit with magnitude >= 1, **capped at PiB** (a value in or above the PiB range stays in PiB — no EiB is invented) |
 | bytes | the `B` unit is **always a plain integer**, rendered with no decimal regardless of `decimals` |
 | decimals | non-byte units render with at most `decimals` places (default `1`), **trailing zeros trimmed** — so `1024` -> `"1 KiB"`, not `"1.0 KiB"` |
@@ -58,12 +61,18 @@ string.
 
 **Options**
 
-- `decimals` (default `1`): the **maximum** decimal places for non-byte units.
-  Trailing zeros are always trimmed, so this is a precision cap, not a fixed
-  width: `formatBytes(1536, { decimals: 2 })` is `"1.5 KiB"`, not `"1.50 KiB"`.
-  Bytes (`B`) are always integers and ignore this. Only a truly absent
-  `decimals` (key omitted / `undefined`) uses the default — a present `null` is
-  a wrong-type value and fails closed.
+- `opts` must be an options object or be omitted. An omitted / `undefined` opts
+  uses defaults; a **non-object** `opts` (`null`, a number, string, boolean,
+  bigint, or array) is a malformed argument and fails closed to `null` — it is
+  not a "use defaults" sentinel, and it **never throws** (a `null` opts does not
+  reach a `.decimals` read).
+- `decimals` (default `1`): the **maximum** decimal places for non-byte units, in
+  the range **`[0, 100]`** (the `toFixed` ceiling). Trailing zeros are always
+  trimmed, so this is a precision cap, not a fixed width:
+  `formatBytes(1536, { decimals: 2 })` is `"1.5 KiB"`, not `"1.50 KiB"`. Bytes
+  (`B`) are always integers and ignore this. Only a truly absent `decimals` (key
+  omitted / `undefined`) uses the default — a present `null`, a value above `100`,
+  or any non-integer is invalid and **fails closed** rather than throwing.
 
 ### `parseBytes(str) -> number | null`
 
@@ -103,10 +112,14 @@ Consequences:
   inverse could not trust, and `parseBytes` rejects a string whose byte count is
   non-safe. So `formatBytes(2**53) === null` and `parseBytes("8 PiB") === null`,
   symmetrically.
-- **Fail-closed** — both functions return `null` on bad input and never throw:
-  `formatBytes` on non-Number / non-finite / negative / non-integer /
-  non-safe-integer `n` (and bad `decimals`); `parseBytes` on any string that is
-  not the canonical default rendering of a safe-integer byte count.
+- **Fail-closed — and provably never throws** — both functions return `null` on
+  bad input and never throw: `formatBytes` on non-Number / non-finite / negative
+  / non-integer / non-safe-integer `n`, on a malformed `opts` (non-object, incl.
+  `null`), and on a bad `decimals` (incl. one above the `toFixed` ceiling of 100);
+  `parseBytes` on any string that is not the canonical default rendering of a
+  safe-integer byte count. No hostile argument reaches a `.decimals` read on a
+  non-object or a `toFixed` call with an out-of-range digit count, so the "never
+  throws" acceptance property holds against the whole hostile-input grid.
 - **Strict-inverse / no-superset (true)** — `parseBytes` accepts a string **iff**
   `formatBytes(parseBytes(str)) === str`. The accepted language is *exactly*
   format's image; there is no separate grammar to drift into a superset, so the
