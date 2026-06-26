@@ -117,6 +117,9 @@ export const LOSSY_FORMAT = Object.freeze([
 /**
  * Inputs `formatBytes` must fail closed (return `null`) on — never throw.
  * `-0` is intentionally NOT here: it is normalized to `0` and formats to "0 B".
+ * The non-safe-integer cases pin the symmetric ceiling: `formatBytes` rejects a
+ * byte count past `Number.MAX_SAFE_INTEGER` (2**53) rather than emit a string its
+ * own inverse `parseBytes` would reject — both functions share one domain.
  *
  * @type {ReadonlyArray<{ name: string, n: * }>}
  */
@@ -128,6 +131,8 @@ export const BAD_FORMAT = Object.freeze([
   { name: "negative infinity", n: -Infinity },
   { name: "non-integer float", n: 1.5 },
   { name: "non-integer sub-byte", n: 0.5 },
+  { name: "non-safe integer (2**53)", n: 2 ** 53 },
+  { name: "non-safe integer (2**53 + 2)", n: 2 ** 53 + 2 },
   { name: "string number", n: "1024" },
   { name: "null", n: null },
   { name: "undefined", n: undefined },
@@ -163,7 +168,10 @@ export const BAD_DECIMALS = Object.freeze([
 
 /**
  * Strings (and non-strings) `parseBytes` must fail closed (return `null`) on:
- * everything outside the strict grammar `formatBytes` emits.
+ * everything that is not the canonical default rendering `formatBytes` emits.
+ * Because `parseBytes` accepts a string IFF `formatBytes(bytes) === str`, this
+ * includes every NON-CANONICAL spelling of an otherwise-valid byte count — those
+ * are the previously-leaking superset cases, now locked.
  *
  * @type {ReadonlyArray<{ name: string, str: * }>}
  */
@@ -195,6 +203,21 @@ export const BAD_PARSE = Object.freeze([
   { name: "uppercase IB unit", str: "1 KIB" },
   { name: "unit only, leading space", str: " B" },
   { name: "garbage word", str: "abc" },
+  // --- non-canonical spellings of a real byte count (formerly leaked, now locked):
+  // each denotes a valid count but is NOT the string formatBytes emits for it, so
+  // canonicalization rejects them. The canonical form is given in each name.
+  { name: "zero on a non-B unit, canonical is 0 B", str: "0 KiB" },
+  { name: "zero on PiB, canonical is 0 B", str: "0 PiB" },
+  { name: "sub-1 fraction KiB, canonical is 512 B", str: "0.5 KiB" },
+  { name: "sub-1 fraction GiB, canonical is 256 MiB", str: "0.25 GiB" },
+  { name: "magnitude >= 1024 carries: 2048 KiB, canonical is 2 MiB", str: "2048 KiB" },
+  { name: "magnitude >= 1024 carries: 1536 KiB, canonical is 1.5 MiB", str: "1536 KiB" },
+  { name: "magnitude >= 1024 carries: 1024 MiB, canonical is 1 GiB", str: "1024 MiB" },
+  { name: "lossy format output is non-canonical: 1024 KiB parses to 1048576 (canonical 1 MiB)", str: "1024 KiB" },
+  // --- domain ceiling: 8 PiB = 2**53, not a safe integer, rejected symmetrically:
+  { name: "byte count at 2**53 (8 PiB) is not a safe integer", str: "8 PiB" },
+  { name: "byte count above the safe-integer ceiling", str: "9 PiB" },
+  // ---
   { name: "null", str: null },
   { name: "undefined", str: undefined },
   { name: "number", str: 1024 },
