@@ -20,6 +20,7 @@ import {
   LOSSY_FORMAT,
   BAD_FORMAT,
   BAD_DECIMALS,
+  BAD_OPTS,
   BAD_PARSE,
 } from "./fixtures.mjs";
 import { formatBytes, parseBytes } from "./index.mjs";
@@ -70,9 +71,21 @@ for (const { name, n } of BAD_FORMAT) {
 
 // 6. Fail-closed decimals: an invalid `opts.decimals` returns null, never throws.
 //    The byte count itself (1536) is valid, so only the bad decimals fails it.
+//    Covers the toFixed-ceiling cases (>100) that would otherwise throw RangeError.
 for (const { name, decimals } of BAD_DECIMALS) {
   test(`fail-closed decimals: ${name}`, () => {
+    assert.doesNotThrow(() => formatBytes(1536, { decimals }));
     assert.equal(formatBytes(1536, { decimals }), null);
+  });
+}
+
+// 6b. Fail-closed opts: a malformed `opts` (non-object: null / number / string /
+//     array / …) returns null and NEVER throws. The `null` case would otherwise
+//     hit a `.decimals` read on null and throw a TypeError.
+for (const { name, opts } of BAD_OPTS) {
+  test(`fail-closed opts: ${name}`, () => {
+    assert.doesNotThrow(() => formatBytes(1024, opts));
+    assert.equal(formatBytes(1024, opts), null);
   });
 }
 
@@ -169,9 +182,16 @@ test("format return type is string-or-null, never throws", () => {
     const out = formatBytes(n);
     assert.ok(out === null || typeof out === "string");
   }
-  // Hostile decimals on a valid byte count must also stay string-or-null.
-  for (const decimals of [-1, 1.5, NaN, Infinity, "2", null, {}, true]) {
+  // Hostile decimals on a valid byte count must also stay string-or-null, incl.
+  // the toFixed-ceiling values (>100) that would throw RangeError unguarded.
+  for (const decimals of [-1, 1.5, NaN, Infinity, "2", null, {}, true, 101, 1e9, Number.MAX_SAFE_INTEGER]) {
     const out = formatBytes(1536, { decimals });
+    assert.ok(out === null || typeof out === "string");
+  }
+  // Hostile `opts` arguments (the options object itself) must stay string-or-null
+  // and never throw — `null` in particular would throw a TypeError unguarded.
+  for (const opts of [null, 42, "x", true, 10n, [], [2], { decimals: 999 }]) {
+    const out = formatBytes(1024, opts);
     assert.ok(out === null || typeof out === "string");
   }
 });
