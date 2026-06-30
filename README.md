@@ -22,6 +22,23 @@ Nothing here is precious. If it breaks, it gets fixed or wiped. The point is
 to have a realistic project to test against without polluting Station's own
 board or history.
 
+## Autonomous sandbox workflow
+
+This is an **autonomous sandbox**: the work here is driven end-to-end by
+Station's AI, with no human in the loop.
+
+- **Purpose** — give Station a safe place to run a full task lifecycle —
+  plan, implement, commit, open a PR, and ship — exactly as it would on a
+  real project, but where mistakes are cheap and nothing is precious.
+- **Ownership** — Station AI owns this project. It picks up Kanban items,
+  decides how to implement them, and lands the work itself. There is no human
+  reviewer gating each change; the operator sets direction, the AI executes.
+- **Auto-merge policy** — because the AI owns the repo, work is shipped
+  autonomously: once a PR's checks pass it is auto-merged onto `alpha`
+  (rebase-and-merge only — see [`CLAUDE.md`](./CLAUDE.md) for the linear-history
+  rule), with no manual approval step. Auto-merge is enabled on the PR as soon
+  as it is opened so a green build flows straight to `alpha`.
+
 ## What's *not* throwaway
 
 The repo itself stays — only its *contents* are disposable. Treat
