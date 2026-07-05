@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { retry } from './retry.ts';
+import { computeDelay, retry } from './retry.ts';
 
 /**
  * A sleep spy that records every delay it was asked to wait and resolves
@@ -100,7 +100,11 @@ describe('retry', () => {
       for (const ms of calls) expect(ms).toBeLessThanOrEqual(500);
     }
 
-    // --- Full jitter with random() === 1 (worst case): delay == base, capped. ---
+    // --- Full jitter at the supremum: random() === 1 asserts the cap never
+    // breaks even at the RNG's theoretical upper bound. Note random()===1 is
+    // BEYOND the [0,1) contract (a real Math.random never returns 1); it is
+    // used deliberately as the supremum so delay === base and we prove the
+    // cap holds at the tightest possible point. ---
     {
       const { sleep, calls } = sleepSpy();
       let n = 0;
@@ -114,11 +118,11 @@ describe('retry', () => {
           maxDelayMs: 500,
           factor: 2,
           jitter: true,
-          random: () => 1, // full-jitter upper bound => delay === base
+          random: () => 1, // supremum: delay === base (beyond the [0,1) contract)
           sleep,
         }),
       ).rejects.toThrow();
-      // random()===1 gives delay === base, which is min-capped at 500.
+      // At the supremum, delay === base, which is min-capped at 500.
       expect(calls).toEqual([100, 200, 400, 500, 500]);
       for (const ms of calls) expect(ms).toBeLessThanOrEqual(500);
     }
@@ -169,5 +173,37 @@ describe('retry', () => {
     // a retry might follow: attempts 1,2,3). The 4th failure exhausts and
     // rethrows before consulting the predicate.
     expect(seen).toEqual([1, 2, 3]);
+  });
+});
+
+describe('computeDelay', () => {
+  const base = {
+    minDelayMs: 100,
+    maxDelayMs: 500,
+    factor: 2,
+  } as const;
+
+  it('jitter:false returns the exact capped backoff base per attemptIndex', () => {
+    const opts = { ...base, jitter: false, random: () => 0.5 };
+    // uncapped bases: 100, 200, 400, 800, 1600 -> capped at 500: 100,200,400,500,500
+    expect([0, 1, 2, 3, 4].map((i) => computeDelay(i, opts))).toEqual([
+      100, 200, 400, 500, 500,
+    ]);
+    // random must NOT be consulted when jitter is off.
+    const random = vi.fn(() => 0.5);
+    computeDelay(0, { ...base, jitter: false, random });
+    expect(random).not.toHaveBeenCalled();
+  });
+
+  it('jitter:true scales the capped base by random(), staying within the cap', () => {
+    // random() === 0.5 -> half of each capped base.
+    const half = { ...base, jitter: true, random: () => 0.5 };
+    expect([0, 1, 2, 3, 4].map((i) => computeDelay(i, half))).toEqual([
+      50, 100, 200, 250, 250,
+    ]);
+    // random() === 0 -> floor of the range is 0.
+    expect(computeDelay(4, { ...base, jitter: true, random: () => 0 })).toBe(0);
+    // random() === 1 (supremum, beyond [0,1)) -> delay === capped base, still <= cap.
+    expect(computeDelay(4, { ...base, jitter: true, random: () => 1 })).toBe(500);
   });
 });

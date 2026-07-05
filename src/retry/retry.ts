@@ -1,6 +1,6 @@
 // Async `retry` — a pure, zero-runtime-dependency control-flow primitive.
 //
-// Runtime: Node.js v24+ with native ESM, authored in TypeScript per ADR 1
+// Runtime: Node.js v24+ with native ESM, authored in TypeScript per ADR S0001
 // ("TypeScript + vitest sanctioned for self-contained src/ leaf libraries").
 // This module imports NOTHING at runtime: the only ambient it touches is the
 // global `setTimeout`, used solely as the default of the injectable `sleep`
@@ -43,7 +43,8 @@ export interface RetryOptions {
   /**
    * Full-jitter switch. When `false`, each delay is exactly the capped base
    * (deterministic). When `true`, each delay is `random() * base`, uniformly in
-   * `[0, base]` — still capped, since `base <= maxDelayMs`.
+   * `[0, base)` for a `Math.random`-style source in `[0, 1)` — still capped,
+   * since `base <= maxDelayMs`.
    * @default true
    */
   jitter?: boolean;
@@ -93,8 +94,8 @@ const DEFAULTS = {
  * Compute the delay (ms) to wait before the retry at `attemptIndex`
  * (0 = the wait before attempt #2). Exported for testing the backoff schedule
  * directly. The base is `min(maxDelayMs, minDelayMs * factor ** attemptIndex)`;
- * with jitter, the returned delay is `random() * base`, always in `[0, base]`
- * and hence never above `maxDelayMs`.
+ * with jitter, the returned delay is `random() * base` — in `[0, base)` for a
+ * `Math.random`-style source in `[0, 1)`, and never above `maxDelayMs`.
  */
 export function computeDelay(
   attemptIndex: number,
@@ -130,15 +131,31 @@ export async function retry<T>(
   fn: () => Promise<T>,
   opts: RetryOptions = {},
 ): Promise<T> {
-  const cfg = { ...DEFAULTS, ...opts };
-  const maxAttempts = cfg.retries + 1;
+  // Resolve each field with `??` (NOT `{ ...DEFAULTS, ...opts }`): an object
+  // spread copies keys whose value is `undefined`, so a caller forwarding
+  // `{ retries: undefined }` would otherwise clobber the default. `??` keeps
+  // the default for an absent OR explicitly-undefined field. For every in-spec
+  // call the result is identical to a plain merge.
+  const cfg: Required<RetryOptions> = {
+    retries: opts.retries ?? DEFAULTS.retries,
+    minDelayMs: opts.minDelayMs ?? DEFAULTS.minDelayMs,
+    maxDelayMs: opts.maxDelayMs ?? DEFAULTS.maxDelayMs,
+    factor: opts.factor ?? DEFAULTS.factor,
+    jitter: opts.jitter ?? DEFAULTS.jitter,
+    shouldRetry: opts.shouldRetry ?? DEFAULTS.shouldRetry,
+    sleep: opts.sleep ?? DEFAULTS.sleep,
+    random: opts.random ?? DEFAULTS.random,
+  };
 
-  let lastErr: unknown;
+  // Clamp so the first attempt ALWAYS runs: `Math.floor` guards non-integer
+  // `retries`, `Math.max(1, …)` guards negative `retries` (both of which would
+  // otherwise skip the loop entirely and let a phantom `undefined` escape).
+  const maxAttempts = Math.max(1, Math.floor(cfg.retries) + 1);
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (err) {
-      lastErr = err;
       const attemptsRemain = attempt < maxAttempts;
       if (!attemptsRemain || !cfg.shouldRetry(err, attempt)) {
         throw err;
@@ -148,9 +165,10 @@ export async function retry<T>(
     }
   }
 
-  // Unreachable: the loop either returns on success or throws on the final
-  // attempt. Present only to satisfy definite-return analysis.
-  throw lastErr;
+  // Genuinely unreachable now: `maxAttempts >= 1`, so the loop runs at least
+  // once and either returns on success or throws on the final attempt. This
+  // guard exists only to satisfy definite-return analysis and must never fire.
+  throw new Error('retry: unreachable');
 }
 
 export default retry;
