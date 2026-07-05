@@ -15,6 +15,8 @@ export interface RetryOptions {
   /**
    * Number of ADDITIONAL retries after the first attempt. Total attempts =
    * `retries + 1`. `retries: 0` means a single attempt with no retry.
+   * `Infinity` means "retry until success or `shouldRetry` declines". A `NaN`
+   * value (e.g. from `Number(<unset env var>)`) falls back to the default.
    * @default 3
    */
   retries?: number;
@@ -147,10 +149,15 @@ export async function retry<T>(
     random: opts.random ?? DEFAULTS.random,
   };
 
-  // Clamp so the first attempt ALWAYS runs: `Math.floor` guards non-integer
-  // `retries`, `Math.max(1, …)` guards negative `retries` (both of which would
-  // otherwise skip the loop entirely and let a phantom `undefined` escape).
-  const maxAttempts = Math.max(1, Math.floor(cfg.retries) + 1);
+  // retries: NaN (garbage config, e.g. Number(<unset env var>)) falls back to
+  // the default, consistent with the `??` treatment of an absent field —
+  // WITHOUT this, `Math.max(1, NaN)` propagates NaN, the loop is skipped, and
+  // the `'retry: unreachable'` tail fires. Infinity is honored as "retry until
+  // success or shouldRetry declines". floor guards non-integers; max(1, …)
+  // guards negatives so the first attempt ALWAYS runs and the tail below is
+  // genuinely unreachable.
+  const retriesResolved = Number.isNaN(cfg.retries) ? DEFAULTS.retries : cfg.retries;
+  const maxAttempts = Math.max(1, Math.floor(retriesResolved) + 1);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {

@@ -174,6 +174,39 @@ describe('retry', () => {
     // rethrows before consulting the predicate.
     expect(seen).toEqual([1, 2, 3]);
   });
+
+  it('retries: NaN falls back to the default (does not skip every attempt)', async () => {
+    const { sleep, calls } = sleepSpy();
+    const last = new Error('final');
+    let n = 0;
+    const fn = vi.fn(async () => {
+      throw n++ === 3 ? last : new Error(`n${n}`);
+    });
+
+    // NaN must fall back to DEFAULTS.retries (3) => 4 attempts, and rethrow the
+    // last REAL fn error by identity -- never the 'retry: unreachable' phantom.
+    const rejection = retry(fn, { retries: NaN, sleep, jitter: false });
+    await expect(rejection).rejects.toBe(last);
+    await expect(rejection).rejects.not.toThrow('retry: unreachable');
+    expect(fn).toHaveBeenCalledTimes(4); // DEFAULTS.retries + 1
+    expect(calls).toHaveLength(3); // DEFAULTS.retries
+  });
+
+  it('retries: Infinity retries until success without exhausting', async () => {
+    const { sleep, calls } = sleepSpy();
+    let attempts = 0;
+    const fn = vi.fn(async () => {
+      attempts++;
+      if (attempts < 6) throw new Error(`fail ${attempts}`);
+      return 'won';
+    });
+
+    const result = await retry(fn, { retries: Infinity, sleep, jitter: false });
+
+    expect(result).toBe('won');
+    expect(fn).toHaveBeenCalledTimes(6);
+    expect(calls).toHaveLength(5);
+  });
 });
 
 describe('computeDelay', () => {
