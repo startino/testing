@@ -2,7 +2,7 @@
 
 Pure, **zero-runtime-dependency** async retry with exponential backoff and
 optional full jitter. Node v24+ ESM, authored in TypeScript per
-[ADR 1](../../docs/adr/S0001-typescript-vitest-sanctioned-for-self-contained-src-leaf-libraries.md).
+[ADR S0001](../../docs/adr/S0001-typescript-vitest-sanctioned-for-self-contained-src-leaf-libraries.md).
 
 ```ts
 import { retry } from './retry.ts';
@@ -44,7 +44,8 @@ error, unchanged (never wrapped or aggregated).
 - The wait before attempt _N_ uses `attemptIndex = N - 1`:
   `base = min(maxDelayMs, minDelayMs * factor ** attemptIndex)`.
   - `jitter: false` -> `delay = base` (deterministic).
-  - `jitter: true`  -> `delay = random() * base`, uniformly in `[0, base]`.
+  - `jitter: true`  -> `delay = random() * base`, uniformly in `[0, base)` for a
+    `Math.random`-style source in `[0, 1)`.
 - Because `base <= maxDelayMs` and jitter only scales **down**, no delay ever
   exceeds `maxDelayMs`.
 - On rejection, if attempts remain **and** `shouldRetry(err, attempt)` is truthy,
