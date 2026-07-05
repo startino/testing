@@ -23,6 +23,8 @@ ADR 0002 is the in-repo precedent for exactly this move: when a new deliverable 
 
 The architecturally-significant thing recorded here is not "one file is TypeScript." It is the **precedent** on the repo's convention surface: a future `src/` author will cite this ADR as license to reach for TypeScript + vitest. Left unrecorded, that would silently mutate what "the proven `src/unicode/` shape" permits. Recording it — scoped-permissive — keeps ADR 0001's convention genuinely alive while forestalling both over-reads: that TypeScript is now mandatory, and that the incumbent JSDoc/`.mjs` shape is now deprecated.
 
+**Note on ADR numbering lines.** This repo now carries two coexisting ADR numbering lines: the legacy hand-numbered `NNNN-` files (`docs/adr/0001-…`, `0002-…`) and the Convex-minted `SNNNN-` files (this document, `S0001`). They are independent sequences, so **"ADR 1"/"ADR S0001" (this doc) and "ADR 0001" (the legacy feature-flags ADR) are distinct documents** — prose in this module cites the disambiguating `S0001` form to avoid the collision.
+
 ## Considered options
 
 - **Honor the literal request as a new coexisting track (chosen).** TypeScript delivers the "well-typed" surface the request names as a goal; vitest's fake timers are the idiomatic injectable clock the retry semantics want. Recorded as a sanctioned option, coexisting with ADR 0001. Cost: a second convention on the `src/` track, priced deliberately and bounded by the scoped-permissive framing.
