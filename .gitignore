@@ -6,6 +6,9 @@
 runs/
 .agents/prose/runs/
 
+# Installed dependencies — never source (self-contained src/ modules install their own)
+node_modules/
+
 # OS / editor cruft
 .DS_Store
 *.swp
