@@ -6,9 +6,12 @@
 runs/
 .agents/prose/runs/
 
-# Installed dependencies — never source (self-contained src/ modules install their own)
+# Installed dependencies — never source. The self-contained src/ modules install
+# their own devDeps and never commit a lockfile; web/ is the deployable app (ADR
+# 0002) and DOES commit web/package-lock.json for reproducible builds, so the
+# lockfile ignore is anchored to the src/ module track only.
 node_modules/
-package-lock.json
+src/*/package-lock.json
 
 # OS / editor cruft
 .DS_Store
