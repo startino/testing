@@ -7,7 +7,7 @@
 	const nav = [
 		{ href: '/', label: 'Home' },
 		{ href: '/components', label: 'Components' },
-		{ href: '/playground/slugify', label: 'Slugify' },
+		{ href: '/playground', label: 'Playground' },
 	];
 
 	const isActive = (href: string) =>
