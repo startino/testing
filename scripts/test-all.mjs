@@ -2,12 +2,12 @@
 // Zero-dependency monorepo test runner.
 //
 // Discovers every `src/<module>/package.json` that declares a `test` script,
-// runs each module with its OWN declared test runner (so a `node --test`
-// module and a `vitest` module are both honoured), and exits non-zero if any
-// module fails. When a module declares dependencies it does not yet have
-// installed, they are installed first so its runner can actually run — a
-// module whose deps cannot be installed is reported as a FAIL, never silently
-// skipped.
+// plus the top-level `web/` app, runs each with its OWN declared test runner
+// (so a `node --test` module, a `vitest` module, and the SvelteKit web app are
+// all honoured), and exits non-zero if any fails. When a module declares
+// dependencies it does not yet have installed, they are installed first so its
+// runner can actually run — a module whose deps cannot be installed is reported
+// as a FAIL, never silently skipped.
 //
 // Uses Node built-ins only — this runner has no runtime dependencies of its
 // own.
@@ -22,21 +22,38 @@ const srcDir = join(repoRoot, 'src');
 
 const rel = (p) => (p.startsWith(repoRoot) ? p.slice(repoRoot.length + 1) : p);
 
+// Load a `package.json` at `dir` into a module entry iff it declares a `test`
+// script; otherwise return null so the caller can skip it.
+function loadModule(dir) {
+  const pkgPath = join(dir, 'package.json');
+  if (!existsSync(pkgPath)) return null;
+  const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+  if (!pkg.scripts || typeof pkg.scripts.test !== 'string') return null;
+  return { dir, pkg };
+}
+
 function discoverModules() {
-  if (!existsSync(srcDir)) return [];
-  return readdirSync(srcDir)
-    .map((name) => join(srcDir, name))
-    .filter((dir) => {
-      try {
-        return statSync(dir).isDirectory();
-      } catch {
-        return false;
-      }
-    })
-    .filter((dir) => existsSync(join(dir, 'package.json')))
-    .map((dir) => ({ dir, pkg: JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8')) }))
-    .filter(({ pkg }) => pkg.scripts && typeof pkg.scripts.test === 'string')
-    .sort((a, b) => a.dir.localeCompare(b.dir));
+  const srcModules = existsSync(srcDir)
+    ? readdirSync(srcDir)
+        .map((name) => join(srcDir, name))
+        .filter((dir) => {
+          try {
+            return statSync(dir).isDirectory();
+          } catch {
+            return false;
+          }
+        })
+        .map(loadModule)
+        .filter(Boolean)
+        .sort((a, b) => a.dir.localeCompare(b.dir))
+    : [];
+
+  // The SvelteKit `web/` app is a first-class member of the suite even though
+  // it lives outside `src/`. Its `test` script is `vitest run`, and its deps
+  // (installed via the shared ensureDeps path) are what make that runnable.
+  const web = loadModule(join(repoRoot, 'web'));
+
+  return web ? [...srcModules, web] : srcModules;
 }
 
 function run(cmd, args, cwd) {
@@ -62,7 +79,7 @@ function ensureDeps({ dir, pkg }) {
 
 const modules = discoverModules();
 if (modules.length === 0) {
-  console.error('No testable modules found under src/. Nothing to run.');
+  console.error('No testable modules found (src/ modules or web/). Nothing to run.');
   process.exit(1);
 }
 
