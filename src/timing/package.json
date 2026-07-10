@@ -1,0 +1,14 @@
+{
+  "name": "timing-module",
+  "version": "1.0.0",
+  "description": "Pure, dependency-free debounce/throttle timing utility (lodash-faithful semantics: leading/trailing/maxWait, cancel/flush/pending).",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "timing.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
