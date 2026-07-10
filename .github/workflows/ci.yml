@@ -1,0 +1,32 @@
+name: CI
+
+# Gates every proposed change on the full monorepo test suite before it can
+# reach alpha. This is the machine-enforced gate the repo's docs/why-ci.md and
+# README auto-merge policy assume exists: a PR only auto-merges once this is
+# green.
+on:
+  pull_request:
+  push:
+    branches: [alpha]
+
+# Cancel superseded runs on the same ref so only the latest change is gated.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: monorepo test suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          # Modules declare engines ">=24"; pin the major so the runner matches.
+          node-version: '24'
+
+      - name: Run monorepo test suite
+        run: node scripts/test-all.mjs

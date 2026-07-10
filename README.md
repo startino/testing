@@ -39,6 +39,27 @@ Station's AI, with no human in the loop.
   rule), with no manual approval step. Auto-merge is enabled on the PR as soon
   as it is opened so a green build flows straight to `alpha`.
 
+## Testing & CI
+
+The repo is a monorepo of small zero-dependency modules under `src/` (each with
+its own tests) plus a SvelteKit `web/` app. A single command runs the whole
+`src/` suite:
+
+```sh
+npm test
+```
+
+That invokes [`scripts/test-all.mjs`](./scripts/test-all.mjs) — a zero-dependency
+Node runner that discovers every `src/<module>/` with a `test` script and runs
+each module with its *own* declared runner (both `node --test` and `vitest`
+modules are honoured; a module whose deps fail to install is reported as a
+failure, never silently skipped).
+
+CI runs the same command on every pull request and on pushes to `alpha` via
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml). This is the gate the
+auto-merge policy above depends on: a PR only reaches `alpha` once the suite is
+green. See [`docs/ci-notes.md`](./docs/ci-notes.md) for details.
+
 ## What's *not* throwaway
 
 The repo itself stays — only its *contents* are disposable. Treat
