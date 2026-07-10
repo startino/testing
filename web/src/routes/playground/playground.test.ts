@@ -5,8 +5,10 @@ import headerSource from '$lib/components/site-header.svelte?raw';
 // Structural fence, matching this repo's vitest convention (see stat-card.test.ts):
 // there is no Svelte render harness in vitest, so we assert against the compiled
 // component source. svelte-check compiles the component; these assertions pin the
-// hub's public contract -- one card per showcased library, a live link for demos
-// that have a route, and a coming-soon state for those that do not.
+// hub's public contract -- one card per showcased library, a live link into each
+// demo route, and a callout linking the full generated toolbox catalog. The
+// coming-soon template branch is retained for future libraries but no card uses
+// it now that all three demos are live.
 describe('Playground hub', () => {
 	it('renders the hub section', () => {
 		expect(source).toContain('data-testid="playground-hub"');
@@ -24,17 +26,26 @@ describe('Playground hub', () => {
 		expect(source).toContain('data-testid="demo-card-{demo.id}"');
 	});
 
-	it('links the live Slugify demo into its route', () => {
-		expect(source).toContain("href: '/playground/slugify'");
+	it('links every live demo into its own route', () => {
+		for (const href of ['/playground/slugify', '/playground/bytes', '/playground/duration']) {
+			expect(source).toContain(`href: '${href}'`);
+		}
 		expect(source).toContain('data-testid="demo-link-{demo.id}"');
 		expect(source).toContain('Open demo');
 	});
 
-	it('shows a coming-soon state for libraries without a demo route yet', () => {
-		// bytes and duration have no route -> href is null -> coming-soon card
-		expect(source).toContain('href: null');
-		expect(source).toContain('data-testid="demo-soon-{demo.id}"');
+	it('has all demos live -- no card is in the coming-soon state', () => {
+		// every demo now has a route, so no entry sets `href: null`...
+		expect(source).not.toContain('href: null');
+		// ...but the coming-soon template branch stays, ready for future libraries.
+		expect(source).toContain('{#if demo.href === null}');
 		expect(source).toContain('Coming soon');
+	});
+
+	it('surfaces the full generated toolbox catalog', () => {
+		expect(source).toContain('data-testid="toolbox-catalog"');
+		expect(source).toContain('data-testid="toolbox-catalog-link"');
+		expect(source).toContain('src/README.md');
 	});
 
 	it('is reachable from the site header nav', () => {

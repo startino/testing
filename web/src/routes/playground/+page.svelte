@@ -7,6 +7,7 @@
 	import WandSparklesIcon from '@lucide/svelte/icons/wand-sparkles';
 	import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 	import TimerIcon from '@lucide/svelte/icons/timer';
+	import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 	import type { Component } from 'svelte';
 
 	type Demo = {
@@ -39,7 +40,7 @@
 			name: 'Bytes',
 			blurb: 'Format raw byte counts into human-readable sizes and parse them back -- a strict, zero-dependency inverse pair over the whole domain.',
 			module: 'src/bytes',
-			href: null,
+			href: '/playground/bytes',
 			icon: HardDriveIcon,
 		},
 		{
@@ -47,7 +48,7 @@
 			name: 'Duration',
 			blurb: 'Render millisecond durations as compact, human-readable strings like "1m 30s", with predictable rounding and unit selection.',
 			module: 'src/duration',
-			href: null,
+			href: '/playground/duration',
 			icon: TimerIcon,
 		},
 	];
@@ -124,4 +125,43 @@
 			</Card.Root>
 		{/each}
 	</div>
+
+	<!-- These interactive demos are a curated slice; the full zero-dependency
+	 toolbox (deep-equal, emitter, pipe, result, retry, unicode, and more) is
+	 catalogued in the generated src/README.md. -->
+	<Card.Root
+		class="from-primary/5 mt-4 bg-gradient-to-br to-transparent"
+		data-testid="toolbox-catalog"
+	>
+		<Card.Header
+			class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
+		>
+			<div class="flex items-start gap-3">
+				<div
+					class="bg-muted text-foreground flex size-9 shrink-0 items-center justify-center rounded-lg"
+				>
+					<LibraryBigIcon class="size-5" />
+				</div>
+				<div class="space-y-1">
+					<Card.Title>The full toolbox</Card.Title>
+					<Card.Description>
+						These demos showcase three of the monorepo's zero-dependency
+						<code class="bg-muted rounded px-1 py-0.5 text-xs">src/</code>
+						libraries. The complete, auto-generated catalog lists every module.
+					</Card.Description>
+				</div>
+			</div>
+			<Button
+				href="https://github.com/startino/testing/blob/alpha/src/README.md"
+				target="_blank"
+				rel="noopener noreferrer"
+				variant="outline"
+				class="shrink-0"
+				data-testid="toolbox-catalog-link"
+			>
+				Browse catalog
+				<ArrowRightIcon class="size-4" />
+			</Button>
+		</Card.Header>
+	</Card.Root>
 </section>
