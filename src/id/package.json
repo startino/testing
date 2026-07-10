@@ -1,0 +1,10 @@
+{
+  "name": "id-module",
+  "version": "1.0.0",
+  "description": "Pure, dependency-free URL-safe collision-resistant unique ID generator (nanoid-style, CSPRNG-backed, uniform rejection-sampling).",
+  "type": "module",
+  "private": true,
+  "engines": { "node": ">=24" },
+  "main": "id.mjs",
+  "scripts": { "test": "node --test" }
+}
