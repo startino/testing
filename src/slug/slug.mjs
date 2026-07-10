@@ -66,7 +66,7 @@ export function slugify(input, opts = {}) {
 
   let slug = tokens.join(separator);
 
-  if (Number.isFinite(maxLength) && maxLength >= 0 && slug.length > maxLength) {
+  if (typeof maxLength === "number" && Number.isFinite(maxLength) && maxLength >= 0 && slug.length > maxLength) {
     let out = "";
     for (const token of tokens) {
       const candidate = out ? out + separator + token : token;
