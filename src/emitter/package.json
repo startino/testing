@@ -1,0 +1,14 @@
+{
+  "name": "emitter-module",
+  "version": "1.0.0",
+  "description": "Pure, dependency-free tiny event emitter (string/symbol keys, unsubscribe handles, once, snapshot dispatch, error-isolated with AggregateError).",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "emitter.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
