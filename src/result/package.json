@@ -1,0 +1,14 @@
+{
+  "name": "result-module",
+  "version": "1.0.0",
+  "description": "Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "result.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
