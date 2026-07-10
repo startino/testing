@@ -60,6 +60,15 @@ CI runs the same command on every pull request and on pushes to `alpha` via
 auto-merge policy above depends on: a PR only reaches `alpha` once the suite is
 green. See [`docs/ci-notes.md`](./docs/ci-notes.md) for details.
 
+## Library catalog
+
+Every `src/` library is indexed in **[`docs/CATALOG.md`](./docs/CATALOG.md)** —
+a generated table of each module's description, entry point, and test command.
+It is produced from the modules on disk by
+[`scripts/gen-catalog.mjs`](./scripts/gen-catalog.mjs) and drift-guarded in CI
+(`node scripts/gen-catalog.mjs --check`), so it can never silently fall out of
+date as libraries are added or renamed.
+
 ## What's *not* throwaway
 
 The repo itself stays — only its *contents* are disposable. Treat
