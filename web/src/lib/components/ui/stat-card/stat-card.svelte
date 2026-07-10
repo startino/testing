@@ -38,12 +38,7 @@
 	};
 </script>
 
-<Card.Root
-	bind:ref
-	data-slot="stat-card"
-	class={cn('min-w-0 gap-3', className)}
-	{...restProps}
->
+<Card.Root bind:ref data-slot="stat-card" class={cn('min-w-0 gap-3', className)} {...restProps}>
 	<Card.Header class="flex-row items-start justify-between gap-3">
 		<div class="min-w-0 space-y-1">
 			<Card.Description>{title}</Card.Description>

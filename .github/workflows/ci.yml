@@ -27,9 +27,32 @@ jobs:
         with:
           # Modules declare engines ">=24"; pin the major so the runner matches.
           node-version: '24'
+          # Cache the web app's npm downloads keyed on its lockfile so the
+          # install step below is fast on repeat runs.
+          cache: npm
+          cache-dependency-path: web/package-lock.json
 
+      # test-all.mjs runs every src/* module AND the web/ vitest suite (it
+      # installs web's deps on demand). Web's typecheck + lint are separate
+      # gate steps below, so the full web app — tests, types, and lint — is
+      # now covered, not just src/*.
       - name: Run monorepo test suite
         run: node scripts/test-all.mjs
+
+      # Install web's deps once for the check + lint steps. test-all.mjs already
+      # installed them for the vitest run, but that happens in a subprocess cwd;
+      # a dedicated `npm ci` here keeps these steps independent and cache-warm.
+      - name: Install web deps
+        working-directory: web
+        run: npm ci --no-audit --no-fund
+
+      - name: web typecheck
+        working-directory: web
+        run: npm run check
+
+      - name: web lint
+        working-directory: web
+        run: npm run lint
 
       - name: toolbox catalog drift check
         run: node scripts/gen-toolbox-readme.mjs --check
