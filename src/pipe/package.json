@@ -1,0 +1,14 @@
+{
+  "name": "pipe-module",
+  "version": "1.0.0",
+  "description": "Pure, stateless, dependency-free function-composition helpers (pipe, compose, flow, tap, identity).",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "pipe.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
