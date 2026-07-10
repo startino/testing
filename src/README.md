@@ -20,6 +20,7 @@ where the committed file has drifted from a fresh render.
 | [deep-equal](./deep-equal/) | Pure, stateless, dependency-free structural deep-equality (SameValueZero primitives, tag-gated exotics, cycle-safe). | `deep-equal/deep-equal.mjs` |
 | [duration](./duration/) | Pure, stateless, dependency-free duration format/parse (compact d/h/m/s string, strict inverse, fail-closed). | `duration/duration.mjs` |
 | [flags](./flags/) | Pure, fail-closed, dependency-free sandbox feature flags (booleans, read once at process start). | `flags/flags.mjs` |
+| [pipe](./pipe/) | Pure, stateless, dependency-free function-composition helpers (pipe/flow/compose/tap/identity, correct on empty-varargs edges). | `pipe/pipe.mjs` |
 | [result](./result/) | Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions. | `result/result.mjs` |
 | [retry](./retry/) | Pure, zero-runtime-dependency async retry with exponential backoff + full jitter and injectable sleep/random seams. | `retry/retry.ts` |
 | [slug](./slug/) | Pure, stateless, dependency-free Unicode-aware slugify (NFKD diacritic-fold, fail-closed). | `slug/slug.mjs` |
