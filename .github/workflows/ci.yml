@@ -30,3 +30,6 @@ jobs:
 
       - name: Run monorepo test suite
         run: node scripts/test-all.mjs
+
+      - name: toolbox catalog drift check
+        run: node scripts/gen-toolbox-readme.mjs --check

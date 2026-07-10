@@ -5,7 +5,9 @@
   "type": "module",
   "description": "Startino autonomous sandbox monorepo: zero-dependency utility modules under src/ plus a SvelteKit web/ app.",
   "scripts": {
-    "test": "node scripts/test-all.mjs"
+    "test": "node scripts/test-all.mjs",
+    "gen:docs": "node scripts/gen-toolbox-readme.mjs",
+    "check:docs": "node scripts/gen-toolbox-readme.mjs --check"
   },
   "engines": {
     "node": ">=24"
