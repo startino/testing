@@ -1,0 +1,14 @@
+{
+  "name": "lru-module",
+  "version": "1.0.0",
+  "description": "Pure, dependency-free bounded LRU cache (max-size eviction + optional lazy TTL) for Node v24+.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "lru.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
