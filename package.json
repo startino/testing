@@ -1,0 +1,13 @@
+{
+  "name": "testing-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Startino autonomous sandbox monorepo: zero-dependency utility modules under src/ plus a SvelteKit web/ app.",
+  "scripts": {
+    "test": "node scripts/test-all.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
