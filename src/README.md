@@ -21,6 +21,7 @@ where the committed file has drifted from a fresh render.
 | [duration](./duration/) | Pure, stateless, dependency-free duration format/parse (compact d/h/m/s string, strict inverse, fail-closed). | `duration/duration.mjs` |
 | [emitter](./emitter/) | Pure, dependency-free tiny event emitter (string/symbol keys, unsubscribe handles, once, snapshot dispatch, error-isolated with AggregateError). | `emitter/emitter.mjs` |
 | [flags](./flags/) | Pure, fail-closed, dependency-free sandbox feature flags (booleans, read once at process start). | `flags/flags.mjs` |
+| [id](./id/) | Pure, dependency-free URL-safe collision-resistant unique ID generator (nanoid-style, CSPRNG-backed, uniform rejection-sampling). | `id/id.mjs` |
 | [pipe](./pipe/) | Pure, stateless, dependency-free function-composition helpers (pipe, compose, flow, tap, identity). | `pipe/pipe.mjs` |
 | [result](./result/) | Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions. | `result/result.mjs` |
 | [retry](./retry/) | Pure, zero-runtime-dependency async retry with exponential backoff + full jitter and injectable sleep/random seams. | `retry/retry.ts` |
