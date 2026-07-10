@@ -24,6 +24,8 @@ same modules) see [`src/README.md`](../src/README.md).
 | [duration](../src/duration/) | Pure, stateless, dependency-free duration format/parse (compact d/h/m/s string, strict inverse, fail-closed). | `src/duration/duration.mjs` | `npm test --prefix src/duration` |
 | [emitter](../src/emitter/) | Pure, dependency-free tiny event emitter (string/symbol keys, unsubscribe handles, once, snapshot dispatch, error-isolated with AggregateError). | `src/emitter/emitter.mjs` | `npm test --prefix src/emitter` |
 | [flags](../src/flags/) | Pure, fail-closed, dependency-free sandbox feature flags (booleans, read once at process start). NOT the Station product feature flag. | `src/flags/flags.mjs` | `npm test --prefix src/flags` |
+| [id](../src/id/) | Pure, dependency-free URL-safe collision-resistant unique ID generator (nanoid-style, CSPRNG-backed, uniform rejection-sampling). | `src/id/id.mjs` | `npm test --prefix src/id` |
+| [lru](../src/lru/) | Pure, dependency-free bounded LRU cache (max-size eviction + optional lazy TTL) for Node v24+. | `src/lru/lru.mjs` | `npm test --prefix src/lru` |
 | [pipe](../src/pipe/) | Pure, stateless, dependency-free function-composition helpers (pipe, compose, flow, tap, identity). | `src/pipe/pipe.mjs` | `npm test --prefix src/pipe` |
 | [result](../src/result/) | Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions. | `src/result/result.mjs` | `npm test --prefix src/result` |
 | [retry](../src/retry/) | Pure, zero-runtime-dependency async retry with exponential backoff + full jitter and injectable sleep/random seams. | `src/retry/retry.ts` | `npm test --prefix src/retry` |
