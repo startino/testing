@@ -7,6 +7,7 @@
 	import WandSparklesIcon from '@lucide/svelte/icons/wand-sparkles';
 	import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 	import TimerIcon from '@lucide/svelte/icons/timer';
+	import TableIcon from '@lucide/svelte/icons/table';
 	import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 	import type { Component } from 'svelte';
 
@@ -51,6 +52,14 @@
 			href: '/playground/duration',
 			icon: TimerIcon,
 		},
+		{
+			id: 'csv',
+			name: 'Csv',
+			blurb: 'Parse RFC-4180 CSV -- quoted delimiters, escaped quotes, embedded newlines -- into a live table, with a delimiter selector and a header-row toggle.',
+			module: 'src/csv',
+			href: '/playground/csv',
+			icon: TableIcon,
+		},
 	];
 
 	const liveCount = demos.filter((demo) => demo.href !== null).length;
@@ -60,7 +69,7 @@
 	<title>Playground -- Startino Sandbox</title>
 	<meta
 		name="description"
-		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, and duration formatting."
+		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, duration formatting, and RFC-4180 CSV parsing."
 	/>
 </svelte:head>
 
@@ -145,7 +154,7 @@
 				<div class="space-y-1">
 					<Card.Title>The full toolbox</Card.Title>
 					<Card.Description>
-						These demos showcase three of the monorepo's zero-dependency
+						These demos showcase four of the monorepo's zero-dependency
 						<code class="bg-muted rounded px-1 py-0.5 text-xs">src/</code>
 						libraries. The complete, auto-generated catalog lists every module.
 					</Card.Description>

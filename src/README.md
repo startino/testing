@@ -17,6 +17,7 @@ where the committed file has drifted from a fresh render.
 | Module | What it does | Entry |
 |---|---|---|
 | [bytes](./bytes/) | Pure, stateless, dependency-free IEC byte-count format/parse (human-readable B/KiB/MiB/GiB/TiB/PiB string, strict inverse, fail-closed). | `bytes/index.mjs` |
+| [csv](./csv/) | Pure, stateless, dependency-free RFC-4180 CSV codec (parse to rows/objects, stringify with minimal quoting, strict round-trip, fail-closed). | `csv/csv.mjs` |
 | [deep-equal](./deep-equal/) | Pure, stateless, dependency-free structural deep-equality (SameValueZero primitives, tag-gated exotics, cycle-safe). | `deep-equal/deep-equal.mjs` |
 | [duration](./duration/) | Pure, stateless, dependency-free duration format/parse (compact d/h/m/s string, strict inverse, fail-closed). | `duration/duration.mjs` |
 | [emitter](./emitter/) | Pure, dependency-free tiny event emitter (string/symbol keys, unsubscribe handles, once, snapshot dispatch, error-isolated with AggregateError). | `emitter/emitter.mjs` |

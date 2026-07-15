@@ -15,10 +15,10 @@ describe('Playground hub', () => {
 	});
 
 	it('registers a card for every showcased utility library', () => {
-		for (const name of ['Slugify', 'Bytes', 'Duration']) {
+		for (const name of ['Slugify', 'Bytes', 'Duration', 'Csv']) {
 			expect(source).toContain(`name: '${name}'`);
 		}
-		for (const mod of ['src/slug', 'src/bytes', 'src/duration']) {
+		for (const mod of ['src/slug', 'src/bytes', 'src/duration', 'src/csv']) {
 			expect(source).toContain(`module: '${mod}'`);
 		}
 		// each demo renders exactly one card, keyed by id
@@ -27,7 +27,12 @@ describe('Playground hub', () => {
 	});
 
 	it('links every live demo into its own route', () => {
-		for (const href of ['/playground/slugify', '/playground/bytes', '/playground/duration']) {
+		for (const href of [
+			'/playground/slugify',
+			'/playground/bytes',
+			'/playground/duration',
+			'/playground/csv',
+		]) {
 			expect(source).toContain(`href: '${href}'`);
 		}
 		expect(source).toContain('data-testid="demo-link-{demo.id}"');
