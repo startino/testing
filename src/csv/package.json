@@ -1,0 +1,14 @@
+{
+  "name": "csv-module",
+  "version": "1.0.0",
+  "description": "Pure, stateless, dependency-free RFC-4180 CSV codec (parse to rows/objects, stringify with minimal quoting, strict round-trip, fail-closed).",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "csv.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
