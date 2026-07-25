@@ -2,9 +2,11 @@
 
 ## Why CI matters
 
-- CI catches integration bugs early by running the full test suite against every proposed change before it touches the main branch.
-- It keeps the main branch always green and releasable, so any commit can be shipped to production with confidence.
-- Automating tests in CI ensures regressions are blocked at merge time rather than discovered in production.
+General notes on the value of CI; this repo's own pipeline is described in the next section.
+
+- Every proposed change runs the test suite before merge, so regressions surface early.
+- The trunk branch stays green: changes land only with no detected regression.
+- Lint and style gates are enforced mechanically, not left to human reviewers.
 
 ## The CI setup (now real)
 
