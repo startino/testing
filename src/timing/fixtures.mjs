@@ -1,4 +1,4 @@
-// Runtime: Node.js v24+ (ESM). Pure stdlib, zero test dependencies.
+// Runtime: Node.js v24+ (ESM). Pure stdlib, zero runtime dependencies.
 //
 // Single source of truth for the timing test helpers and constants. The spy
 // factory and the shared WAIT constants are defined ONCE here and imported by
@@ -6,10 +6,18 @@
 // every reusable test primitive here so the suite in __tests__/ only wires and
 // asserts.
 
-/** Canonical debounce/throttle window used across the suite (ms). */
+/**
+ * The canonical debounce/throttle window used across the whole test suite, in
+ * milliseconds. Defined ONCE here so no case hard-codes a bare number.
+ * @type {number}
+ */
 export const WAIT = 100;
 
-/** A window strictly larger than WAIT, used for maxWait scenarios (ms). */
+/**
+ * A window strictly larger than `WAIT`, in milliseconds — the `maxWait` bound
+ * the suite drives the force-invoke scenarios against.
+ * @type {number}
+ */
 export const MAX_WAIT = 300;
 
 /**

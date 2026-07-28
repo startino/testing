@@ -1,7 +1,7 @@
 // Co-located test suite for the slugify module.
 //
 // Runner: Node's built-in `node:test` + `node:assert/strict` (zero deps).
-// Exact command (run from this module dir or the repo root):  npm test
+// Exact command (run from the repo root):  npm test --prefix src/slug
 // (alias for `node --test`).
 //
 // NOTE on the runner: `node --test <DIRECTORY>` FAILS on Node 24 with

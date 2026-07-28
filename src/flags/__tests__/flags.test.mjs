@@ -5,7 +5,8 @@
 // flag (see CONTEXT.md / docs/adr/0001-feature-flags-as-zero-dep-library.md).
 //
 // Runner: Node's built-in `node:test` + `node:assert/strict` (zero deps).
-// Exact command (run from inside src/flags/):  node --test
+// Exact command (run from the repo root):  npm test --prefix src/flags
+// (alias for `node --test`).
 //
 // NOTE on the runner: `node --test <DIRECTORY>` FAILS on Node 24 with
 // MODULE_NOT_FOUND. Use bare `node --test` (cwd auto-discovery of *.test.mjs),

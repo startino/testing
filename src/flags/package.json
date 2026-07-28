@@ -1,5 +1,5 @@
 {
-  "name": "feature-flags-module",
+  "name": "flags-module",
   "version": "1.0.0",
   "description": "Pure, fail-closed, dependency-free sandbox feature flags (booleans, read once at process start). NOT the Station product feature flag.",
   "type": "module",

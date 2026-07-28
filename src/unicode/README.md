@@ -1,7 +1,9 @@
-# Unicode Text Module
+# unicode
 
-Pure, stateless, dependency-free Unicode-correct text processing: emoji, smart
-quotes/apostrophes, em dash, and accented Latin — all in one module.
+Pure, stateless, **zero-dependency** Unicode-correct text processing for Node
+v24+ (native ESM, typed via JSDoc): emoji, smart quotes/apostrophes, em dash,
+and accented Latin — all in one module. This is the reference module shape the
+other `src/` libraries follow, per [`CONTEXT.md`](../../CONTEXT.md).
 
 ## Runtime choice
 
@@ -18,7 +20,11 @@ external dependencies**:
 JSDoc gives documented signatures with zero install and zero build step. The
 `"type": "module"` field plus the `.mjs` extension make ESM unambiguous.
 
-## Public API (`text.mjs`)
+## API
+
+```js
+import { processText, validateUtf8, graphemeLength, graphemeSlice } from "./text.mjs";
+```
 
 | Function | Signature | Behavior |
 |---|---|---|
@@ -34,19 +40,21 @@ sole exception — it judges the *raw* input's well-formedness.
 The seed test fixture is defined **once** in `fixtures.mjs` and imported by every
 test (no copy-paste).
 
-## Running the tests
+## Properties
+
+- **Pure & stateless** — no I/O, no globals, no time/random. Same input, same output.
+- **Idempotent NFC** — `processText(processText(x)) === processText(x)`.
+- **Typography & accents preserved** — smart quotes/apostrophes, em dash, and
+  accented Latin survive intact; there is **no** ASCII folding.
+- **Grapheme-cluster correct** — measurement and slicing run over UAX-29
+  clusters of NFC(input), so astral emoji count as 1 (`☕` → 1, `🎉` → 1).
+
+## Test
 
 From the **repo root**:
 
-```
+```sh
 npm test --prefix src/unicode
-```
-
-or, equivalently, run the bare auto-discovery command from any directory at or
-above the tests:
-
-```
-node --test
 ```
 
 > Do **not** pass a bare directory to `node --test` (e.g. `node --test src/unicode/__tests__/`):

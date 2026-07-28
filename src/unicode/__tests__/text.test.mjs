@@ -1,7 +1,8 @@
 // Co-located test suite for the Unicode text module.
 //
 // Runner: Node's built-in `node:test` + `node:assert/strict` (zero deps).
-// Exact command (run from the repo root):  npm test   (alias for `node --test`)
+// Exact command (run from the repo root):  npm test --prefix src/unicode
+// (alias for `node --test`).
 //
 // NOTE on the runner: `node --test <DIRECTORY>` FAILS on Node 24 with
 // MODULE_NOT_FOUND. Use bare `node --test` (cwd auto-discovery of *.test.mjs),

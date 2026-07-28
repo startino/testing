@@ -1,7 +1,8 @@
 // Co-located test suite for the timing (debounce/throttle) module.
 //
 // Runner: Node's built-in `node:test` + `node:assert/strict` (zero deps).
-// Exact command (run from this module dir):  npm test  (alias for `node --test`).
+// Exact command (run from the repo root):  npm test --prefix src/timing
+// (alias for `node --test`).
 //
 // NOTE on the runner: `node --test <DIRECTORY>` FAILS on Node 24 with
 // MODULE_NOT_FOUND. Use bare `node --test` (cwd auto-discovery of *.test.mjs),
@@ -29,6 +30,10 @@ import { spy, WAIT, MAX_WAIT } from "../fixtures.mjs";
  * enable-able api name on Node 24 and passing it throws ERR_INVALID_ARG_VALUE.
  * Faking `setTimeout` transparently fakes `clearTimeout`, and faking `Date`
  * makes `Date.now()` advance with `tick()`.
+ *
+ * @param {import("node:test").TestContext} t the test context to install the
+ *   mock timers on (they are torn down with the context automatically)
+ * @returns {void}
  */
 function useFakeTimers(t) {
   t.mock.timers.enable({ apis: ["setTimeout", "Date"] });
@@ -272,6 +277,27 @@ test("throttle inherits cancel/flush/pending", (t) => {
 
 test("TypeError when fn is not a function (debounce and throttle)", () => {
   for (const bad of [null, undefined, 123, "x", {}, []]) {
+    assert.throws(() => debounce(bad), TypeError);
+    assert.throws(() => throttle(bad), TypeError);
+  }
+});
+
+// The rejected argument is rendered into the TypeError message, so a hostile
+// value must not be able to substitute a DIFFERENT error for the TypeError the
+// caller is contractually promised.
+test("TypeError survives an un-stringifiable fn (message building is total)", () => {
+  const hostile = [
+    Object.create(null), // no toString/valueOf at all
+    {
+      toString() {
+        throw new Error("toString exploded");
+      },
+      valueOf() {
+        throw new Error("valueOf exploded");
+      },
+    },
+  ];
+  for (const bad of hostile) {
     assert.throws(() => debounce(bad), TypeError);
     assert.throws(() => throttle(bad), TypeError);
   }
