@@ -34,7 +34,7 @@ save.flush();        // -> invoke any pending call now, return its result
 save.cancel();       // -> drop any pending call and reset state
 ```
 
-### `debounce(fn, wait?, options?) -> debounced`
+### `debounce(fn, wait?, opts?) -> debounced`
 
 Delays invoking `fn` until `wait` ms have elapsed since the last invocation of
 `debounced`. The invocation uses the args and `this` of the **most recent** call.
@@ -42,11 +42,11 @@ Delays invoking `fn` until `wait` ms have elapsed since the last invocation of
 | aspect | behavior |
 | --- | --- |
 | coerce | `wait` via `Number(wait) || 0`; NaN / negative / non-numeric => `0` |
-| leading | `options.leading` (default `false`) — invoke on the leading edge |
-| trailing | `options.trailing` (default `true`) — invoke on the trailing edge |
+| leading | `opts.leading` (default `false`) — invoke on the leading edge |
+| trailing | `opts.trailing` (default `true`) — invoke on the trailing edge |
 | both false | `fn` is never invoked (documented lodash quirk) |
 | both true | fires on leading AND once more on trailing when >1 call in the window |
-| `maxWait` | optional upper bound on delay; clamped to `>= wait`; forces an invoke under a continuous stream |
+| `opts.maxWait` | optional upper bound on delay; clamped to `>= wait`; forces an invoke under a continuous stream |
 | args/`this` | the most recent call's args and `this` are used; result returned from `debounced()` / `flush()` |
 | clock guard | a backwards system clock (`sinceLastCall < 0`) is treated as "should invoke" |
 | throws | `TypeError` if `fn` is not a function |
@@ -59,7 +59,7 @@ Delays invoking `fn` until `wait` ms have elapsed since the last invocation of
 | `.flush()` | last result | invoke any pending trailing call immediately; no-op returning the last result if nothing is pending |
 | `.pending()` | `boolean` | whether a trailing invocation is currently scheduled |
 
-### `throttle(fn, wait?, options?) -> throttled`
+### `throttle(fn, wait?, opts?) -> throttled`
 
 Ensures `fn` is invoked at most once per `wait` ms. Implemented as
 `debounce(fn, wait, { leading, trailing, maxWait: wait })` — the `maxWait === wait`
@@ -67,8 +67,8 @@ bound is exactly what turns a debounce into a throttle.
 
 | aspect | behavior |
 | --- | --- |
-| leading | `options.leading` (default `true`) — fire immediately on the first call |
-| trailing | `options.trailing` (default `true`) — fire on the trailing edge |
+| leading | `opts.leading` (default `true`) — fire immediately on the first call |
+| trailing | `opts.trailing` (default `true`) — fire on the trailing edge |
 | maxWait | fixed to `wait` internally — guarantees at-least-once-per-`wait` firing |
 | methods | inherits `.cancel()`, `.flush()`, `.pending()` from the underlying debounce |
 | throws | `TypeError` if `fn` is not a function |
@@ -89,8 +89,10 @@ bound is exactly what turns a debounce into a throttle.
 
 ## Test
 
+From the **repo root**:
+
 ```sh
-cd src/timing && npm test      # node --test (zero deps)
+npm test --prefix src/timing
 ```
 
 Tests are **deterministic and fast** — they use Node's built-in mock timers with
@@ -102,8 +104,8 @@ both the timer APIs and `Date` faked, so `Date.now()` advances in lockstep with
 trailing/leading edges, `maxWait` forcing and clamping, `cancel` / `flush` /
 `pending`, `this`-binding and argument forwarding, throttle rate-limiting and
 leading-fire, and the `TypeError` / `wait`-coercion robustness guards.
-```
 
-> **Note on the runner**: `node --test <DIRECTORY>` fails on Node 24 with
-> `MODULE_NOT_FOUND`. Use bare `node --test` (the `npm test` script does this) —
-> never a bare directory argument.
+> Do **not** pass a bare directory to `node --test` (e.g.
+> `node --test __tests__/`): on Node 24 that fails with `MODULE_NOT_FOUND`. Use
+> bare `node --test` (auto-discovers `*.test.mjs`), an explicit glob, or an
+> explicit file path.

@@ -1,4 +1,4 @@
-// Debounce / throttle timing utility — lodash-faithful, dependency-free.
+// Debounce / throttle timing utility — pure, lodash-faithful, dependency-free.
 //
 // Runtime choice: Node.js v24+ with native ESM JavaScript (typed via JSDoc),
 // matching the sibling modules src/slug/, src/unicode/, and src/flags/.
@@ -30,6 +30,27 @@
 //     leading-default of `true` — the same state machine, different defaults.
 
 /**
+ * Render a rejected argument for a `TypeError` message: strings are quoted so an
+ * empty/whitespace value is visible, everything else is coerced with `String`.
+ * Mirrors the sibling modules' argument-validation message convention.
+ *
+ * Total by construction: coercion is guarded, so a hostile argument (a
+ * null-prototype object, or one whose `toString`/`valueOf` throws) still yields
+ * a string here instead of replacing the caller's `TypeError` with an unrelated
+ * error from the message-building step.
+ *
+ * @param {any} v the value to describe
+ * @returns {string} a short, human-readable rendering of `v`
+ */
+function stringify(v) {
+  try {
+    return typeof v === "string" ? JSON.stringify(v) : String(v);
+  } catch {
+    return `[un-stringifiable ${typeof v}]`;
+  }
+}
+
+/**
  * Create a debounced wrapper around `fn`.
  *
  * Delays invoking `fn` until `wait` ms have elapsed since the last time the
@@ -38,7 +59,7 @@
  * return value of the last real `fn` invocation is handed back from `debounced()`
  * and `flush()`.
  *
- * Edges (controlled by `options.leading` / `options.trailing`):
+ * Edges (controlled by `opts.leading` / `opts.trailing`):
  *   - leading: invoke on the leading edge (immediately, on the first call of a
  *     new window). Default `false`.
  *   - trailing: invoke on the trailing edge (after the window goes quiet).
@@ -47,7 +68,7 @@
  *   - If BOTH are true and >1 call occurred in the window, `fn` fires on the
  *     leading edge AND once more on the trailing edge.
  *
- * `options.maxWait` (optional): an upper bound, in ms, on how long `fn` may be
+ * `opts.maxWait` (optional): an upper bound, in ms, on how long `fn` may be
  * starved by a continuous stream of calls. Without it, a caller invoking faster
  * than `wait` forever would postpone the trailing invocation forever; with it,
  * `fn` is force-invoked at least once per `maxWait`. Clamped to `>= wait` (a
@@ -56,14 +77,16 @@
  * @template {(...args: any[]) => any} F
  * @param {F} fn the function to debounce
  * @param {number} [wait=0] delay in ms; coerced `Number(wait) || 0`
- * @param {{ leading?: boolean, trailing?: boolean, maxWait?: number }} [options]
+ * @param {{ leading?: boolean, trailing?: boolean, maxWait?: number }} [opts]
  * @returns {F & { cancel(): void, flush(): any, pending(): boolean }}
  *   the debounced function, augmented with `.cancel()`, `.flush()`, `.pending()`
  * @throws {TypeError} if `fn` is not a function
  */
-export function debounce(fn, wait = 0, options = {}) {
+export function debounce(fn, wait = 0, opts = {}) {
   if (typeof fn !== "function") {
-    throw new TypeError("Expected `fn` to be a function");
+    throw new TypeError(
+      `debounce: "fn" must be a function, got ${stringify(fn)}`,
+    );
   }
 
   // Coerce wait defensively: NaN / negative / non-numeric all collapse to 0.
@@ -72,16 +95,14 @@ export function debounce(fn, wait = 0, options = {}) {
   // which is the intended 0-ish behavior.)
   wait = Number(wait) || 0;
 
-  const leading = Boolean(options.leading); // default false
+  const leading = Boolean(opts.leading); // default false
   // trailing defaults to true: only an explicit `false` disables it.
-  const trailing = "trailing" in options ? Boolean(options.trailing) : true;
+  const trailing = "trailing" in opts ? Boolean(opts.trailing) : true;
 
-  const hasMaxWait = "maxWait" in options && options.maxWait != null;
+  const hasMaxWait = "maxWait" in opts && opts.maxWait != null;
   // maxWait is clamped to >= wait: a bound tighter than the debounce window is
   // meaningless, so we raise it. Also coerced through Number() for safety.
-  const maxWait = hasMaxWait
-    ? Math.max(Number(options.maxWait) || 0, wait)
-    : 0;
+  const maxWait = hasMaxWait ? Math.max(Number(opts.maxWait) || 0, wait) : 0;
 
   // --- Internal state (the classic lodash fields) --------------------------
   let lastArgs; // arguments of the most recent debounced() call, undefined when consumed
@@ -271,21 +292,23 @@ export function debounce(fn, wait = 0, options = {}) {
  * @template {(...args: any[]) => any} F
  * @param {F} fn the function to throttle
  * @param {number} [wait=0] the throttle window in ms; coerced `Number(wait) || 0`
- * @param {{ leading?: boolean, trailing?: boolean }} [options]
+ * @param {{ leading?: boolean, trailing?: boolean }} [opts]
  *   - `leading` (default `true`): fire on the leading edge.
  *   - `trailing` (default `true`): fire on the trailing edge.
  * @returns {F & { cancel(): void, flush(): any, pending(): boolean }}
  * @throws {TypeError} if `fn` is not a function
  */
-export function throttle(fn, wait = 0, options = {}) {
+export function throttle(fn, wait = 0, opts = {}) {
   if (typeof fn !== "function") {
-    throw new TypeError("Expected `fn` to be a function");
+    throw new TypeError(
+      `throttle: "fn" must be a function, got ${stringify(fn)}`,
+    );
   }
 
   // leading defaults to true for throttle (unlike debounce); trailing defaults
   // to true. Only an explicit `false` disables either edge.
-  const leading = "leading" in options ? Boolean(options.leading) : true;
-  const trailing = "trailing" in options ? Boolean(options.trailing) : true;
+  const leading = "leading" in opts ? Boolean(opts.leading) : true;
+  const trailing = "trailing" in opts ? Boolean(opts.trailing) : true;
 
   // A throttle IS a debounce whose maxWait equals its wait: the maxWait budget
   // guarantees at-least-once-per-wait firing even under a continuous call stream.

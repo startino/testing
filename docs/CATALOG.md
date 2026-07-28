@@ -31,6 +31,7 @@ same modules) see [`src/README.md`](../src/README.md).
 | [result](../src/result/) | Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions. | `src/result/result.mjs` | `npm test --prefix src/result` |
 | [retry](../src/retry/) | Pure, zero-runtime-dependency async retry with exponential backoff + full jitter and injectable sleep/random seams. | `src/retry/retry.ts` | `npm test --prefix src/retry` |
 | [slug](../src/slug/) | Pure, stateless, dependency-free Unicode-aware slugify (NFKD diacritic-fold, fail-closed). | `src/slug/slug.mjs` | `npm test --prefix src/slug` |
+| [timing](../src/timing/) | Pure, dependency-free debounce/throttle timing utility (lodash-faithful semantics: leading/trailing/maxWait, cancel/flush/pending). | `src/timing/timing.mjs` | `npm test --prefix src/timing` |
 | [unicode](../src/unicode/) | Pure, stateless, dependency-free Unicode-correct text processing (NFC, grapheme-aware length/slice). | `src/unicode/text.mjs` | `npm test --prefix src/unicode` |
 
 ## How this stays fresh

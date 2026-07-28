@@ -1,5 +1,5 @@
 {
-  "name": "unicode-text-module",
+  "name": "unicode-module",
   "version": "1.0.0",
   "description": "Pure, stateless, dependency-free Unicode-correct text processing (NFC, grapheme-aware length/slice).",
   "type": "module",

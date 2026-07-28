@@ -40,13 +40,6 @@ Converts arbitrary text into a URL-safe ASCII slug.
   exceeds it, preferring whole-token boundaries. If not even the first token
   fits, the first token is hard-cut to `maxLength`.
 
-## Properties
-
-- **Pure & stateless** — no I/O, no globals, no time/random. Same input, same output.
-- **Idempotent on its own output** — `slugify(slugify(x)) === slugify(x)`.
-- **Fail-closed** — empty, whitespace-only, symbol-only, or non-ASCII-script
-  input returns `""` and never throws.
-
 ## Scope limitation (intentional)
 
 The output alphabet is ASCII `[a-z0-9]`. Scripts with no Latin NFKD base form
@@ -55,11 +48,25 @@ The output alphabet is ASCII `[a-z0-9]`. Scripts with no Latin NFKD base form
 future transliterating variant could lift it, but only at the cost of the
 zero-dependency guarantee.
 
+## Properties
+
+- **Pure & stateless** — no I/O, no globals, no time/random. Same input, same output.
+- **Idempotent on its own output** — `slugify(slugify(x)) === slugify(x)`.
+- **Fail-closed** — empty, whitespace-only, symbol-only, or non-ASCII-script
+  input returns `""` and never throws.
+
 ## Test
 
+From the **repo root**:
+
 ```sh
-cd src/slug && npm test      # node --test (zero deps)
+npm test --prefix src/slug
 ```
+
+> Do **not** pass a bare directory to `node --test` (e.g.
+> `node --test __tests__/`): on Node 24 that fails with `MODULE_NOT_FOUND`. Use
+> bare `node --test` (auto-discovers `*.test.mjs`), an explicit glob, or an
+> explicit file path.
 
 All behavioral cases live once in [`fixtures.mjs`](./fixtures.mjs); the suite in
 [`__tests__/slug.test.mjs`](./__tests__/slug.test.mjs) is table-driven plus

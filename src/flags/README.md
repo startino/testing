@@ -1,8 +1,11 @@
-# Feature Flags (testing sandbox)
+# flags
 
-A pure, fail-closed, dependency-free library for **feature flags (testing
-sandbox)**: booleans, read once at process start, resolved from a checked-in
-config plus a boot-time `process.env` override.
+A pure, fail-closed, **zero-dependency** library for **feature flags (testing
+sandbox)** on Node v24+ (native ESM, typed via JSDoc): booleans, read once at
+process start, resolved from a checked-in config plus a boot-time `process.env`
+override. Follows the self-contained module shape established by
+[`src/unicode/`](../unicode/) and the conventions fixed in
+[`CONTEXT.md`](../../CONTEXT.md).
 
 > **Terminology guard (load-bearing).** In this repo an unqualified "feature
 > flag" means a **feature flag (testing sandbox)**: the fail-closed boolean this
@@ -25,7 +28,13 @@ signature with zero install. The `"type": "module"` field plus the `.mjs`
 extension make ESM unambiguous. See ADR 0001 for why a library — not a
 Convex + web UI backend — is the right shape in this sandbox.
 
-## Public API (`flags.mjs`)
+## API
+
+```js
+import { isEnabled } from "./flags.mjs";
+
+isEnabled("new_parser"); // -> boolean, resolved once at process start
+```
 
 | Function | Signature | Behavior |
 |---|---|---|
@@ -101,17 +110,22 @@ environments (e.g. `test`, `dev`) whose flag objects supply the layer-2 defaults
 Values must be literal booleans; a non-boolean is treated as not-`true` =>
 `false`. Editing and committing this file is the sandbox's "redeploy."
 
-## Running the tests
+## Properties
 
-From **inside `src/flags/`**:
+- **Pure & stateless** — resolution is a lookup against the boot snapshot: no
+  I/O after load, no hot-reload, no timers, no polling.
+- **Fail-closed & total** — every failure mode in the table above resolves
+  `false`; `isEnabled` never throws.
+- **Read-once at boot** — `flags.config.mjs` and `process.env` are read exactly
+  once at module evaluation; the refresh model is re-running the process.
+- **Booleans only, one surface** — a single exported function, detailed under
+  [API](#api) above.
 
-```
-node --test
-```
+## Test
 
-or, from the repo root:
+From the **repo root**:
 
-```
+```sh
 npm test --prefix src/flags
 ```
 
