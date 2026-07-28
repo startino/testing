@@ -42,7 +42,9 @@ test (no copy-paste).
 
 ## Properties
 
-- **Pure & stateless** — no I/O, no globals, no time/random. Same input, same output.
+- **Pure & stateless** — no I/O, no mutable global state, no time/random. Same
+  input, same output. (The module-level `Intl.Segmenter` is an immutable constant:
+  each `.segment()` call returns a fresh, independent iterator.)
 - **Idempotent NFC** — `processText(processText(x)) === processText(x)`.
 - **Typography & accents preserved** — smart quotes/apostrophes, em dash, and
   accented Latin survive intact; there is **no** ASCII folding.

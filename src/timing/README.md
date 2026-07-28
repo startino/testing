@@ -41,7 +41,7 @@ Delays invoking `fn` until `wait` ms have elapsed since the last invocation of
 
 | aspect | behavior |
 | --- | --- |
-| coerce | `wait` via `Number(wait) || 0`; NaN / negative / non-numeric => `0` |
+| coerce | `wait` via `Number(wait) \|\| 0`; NaN / negative / non-numeric => `0` |
 | leading | `opts.leading` (default `false`) — invoke on the leading edge |
 | trailing | `opts.trailing` (default `true`) — invoke on the trailing edge |
 | both false | `fn` is never invoked (documented lodash quirk) |
