@@ -1,0 +1,10 @@
+absolute cwd: /shared/station/.data/worktrees/k579w75thac211xm07qjbryk9x8bdy19/aba55e8eb8c04387a332073b0b43803f
+HEAD: bceb45b0b12a5141f8a15c5f015c7d549d51e70d
+remote alpha OID: bceb45b0b12a5141f8a15c5f015c7d549d51e70d
+cwd-equals-canonical=false
+
+git status --short after setup:
+AM workspace-e2e-postfix/mixed.txt
+A  workspace-e2e-postfix/staged.txt
+?? workspace-e2e-postfix/trace.txt
+?? workspace-e2e-postfix/untracked.txt

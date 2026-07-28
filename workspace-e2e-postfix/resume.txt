@@ -1,0 +1,23 @@
+new absolute cwd: /shared/station/.data/worktrees/k57cbcn8qprfapcyk1hxjxcc658bctsk/a63a3ef505a24b76aa5469bf228a440a
+prior trace cwd: /shared/station/.data/worktrees/k579w75thac211xm07qjbryk9x8bdy19/aba55e8eb8c04387a332073b0b43803f
+explicit differ=true
+current HEAD: 2cb2d665582ea79de3ab673676d2dd85c693da2a
+remote alpha OID: 2cb2d665582ea79de3ab673676d2dd85c693da2a
+alpha-advance tracked/exact=true
+staged.txt index exact=true
+mixed.txt index and worktree exact=true
+untracked.txt exact=true
+trace SHA exact=true
+
+git status --short before resume:
+AM workspace-e2e-postfix/mixed.txt
+A  workspace-e2e-postfix/staged.txt
+?? workspace-e2e-postfix/trace.txt
+?? workspace-e2e-postfix/untracked.txt
+
+git status --short after resume exists:
+AM workspace-e2e-postfix/mixed.txt
+A  workspace-e2e-postfix/staged.txt
+?? workspace-e2e-postfix/resume.txt
+?? workspace-e2e-postfix/trace.txt
+?? workspace-e2e-postfix/untracked.txt
