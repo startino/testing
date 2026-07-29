@@ -108,3 +108,75 @@ g autonomous loop terminates the agent's only path to surface ambiguity. Subagen
 <!-- /station-section:rs7d90taszavxdey2g0dxvymnx875m4a -->
 
 <!-- station-agent-docs-end -->
+
+<!-- station-rules-start -->
+
+<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@94060eb65f683dc5 -->
+<!-- section-name: Git Protocol (scope: platform) -->
+### Rebase Only
+
+Linear history. Repo settings reject `--squash` and `--merge`; only `Rebase and merge` works. Use `gh pr merge <N> --rebase` or the Rebase-and-merge UI. Local `git pull` rebases by default (config below); never escape to `--no-rebase` or `git merge`.
+
+```sh
+[pull]
+    rebase = true
+[branch]
+autosetuprebase = always
+[rebase]
+    autoStash = true
+```
+
+### git status -sb
+
+ALWAYS run `Bash(git status -sb && echo '' && git diff --stat)` as a mandatory requirement before ANY git work.
+
+### On Stashing Changes
+
+There may be other agents working on the same project as you and at the same time as you. If you stash changes, you can risk causing complete chaos. If you see unrelated changes or changes you don't recognize, be careful with stash them. Only ever stash if you can unstash very quickly. If they're preventing your tests or anything, it's better to use some skip test things to avoid messing with the other agent. If there is something in progress, it means another thing is working on it. Please don't disrupt other people's work. The only exception is if the git stash then reversal with git pop can be completed in under 10 seconds.
+
+There are specific exclusions to this rule that MUST be commited on-sight:
+- {CLAUDE,AGENTS}.md
+- .gitignore
+- any and all code-generated files / auto-generated files
+<!-- /station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7 -->
+
+<!-- station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy@642efec715796832 -->
+<!-- section-name: Env vars for secrets only — never toggles or config (scope: platform) -->
+Env vars are reserved for (a) real secrets that must never enter the DB (API keys, signing secrets, OAuth client secrets) and (b) irreducible boot-time context needed before any data layer is available (`PUBLIC_CONVEX_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, credential dir paths). Nothing else.
+
+Feature flags, kill switches, behavioral toggles, prompt templates, default columns, model selections, debounce/retry tunables — anything a non-engineer might want to change — live in the web UI backed by Convex tables (`projects` per-project, `orgs` per-org, singleton `appSettings` for global). Migrating an existing env-var toggle: add the field to the right Convex table with the previous default, gate a mu
+tation by permission, surface in settings, delete the env-var read site. Tests are the only exception (test fixture switching modes via env var on fresh-process invocation).
+<!-- /station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy -->
+
+<!-- station-section:gh7mn7rvxs6cxdgzk2sk7aj6ax89cqs1@6c8c443dc7262148 -->
+<!-- section-name: MANDATORY: Log Every Fix to docs/fixes/ (scope: platform) -->
+**Whenever you complete a fix for a non-trivial issue (bug, broken behavior, misconfiguration, regression), record it via the station MCP `docs_add` (`kind: "fix"`) in the same commit as the fix.** Convex is the source of truth for fixes and ADRs (ADR-0078); `docs_add` reserves a globally-unique `S`-number from Convex and the `docs/fixes/SNNNN-slug.md` file is a derived projection committed by your PR. Never hand-author a numbered file or scan the directory to pick the next number — that disk-scan is the cross-worktree collision the docs system exists to kill. Remembering past investigations prevents repeating debugging work.
+
+**Before debugging any new issue, grep `docs/fixes/` first** for related symptoms, file paths, or tools — past investigations often contain the answer or rule out dead ends.
+
+Use the fix-entry format in `/shared/station/skills/station/guidance/fixes-format.md`:
+
+    # {short title of the fix}
+
+    **Date:** YYYY-MM-DD
+    **Symptom:** what was observed (user- or operator-facing failure)
+    **Affected:** host/user + key files in `path:line` format
+    **Root cause:** the underlying reason
+
+    ## Investigation
+    1. step — what was tried, what was learned
+    2. step — including dead ends and wrong assumptions
+
+    ## Fix
+    what changed and where.
+
+    **Commit:** `<sha>` (or `n/a` for runtime/ops-only fixes with no code change)
+
+- Log fixes only — not feature work, refactors, doc edits, or one-line typo corrections.
+- **Include dead ends and wrong turns** in the investigation; the failed paths are often the most useful part for future debugging.
+- Keep entries terse but complete — a future reader should be able to reproduce the diagnosis from the entry alone.
+- Newest entries are just higher-numbered files — no need to reorder anything.
+
+<!-- /station-section:gh7mn7rvxs6cxdgzk2sk7aj6ax89cqs1 -->
+
+<!-- station-rules-end -->

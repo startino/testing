@@ -16,3 +16,14 @@ src/*/package-lock.json
 # OS / editor cruft
 .DS_Store
 *.swp
+
+# === STATION MANAGED BEGIN — DO NOT EDIT ===
+# Auto-written by web/src/lib/server/mcp-disk-sync/project-file-syncer.ts
+# Edit at /admin/settings/gitignore — rewrites happen within ~2s of save.
+*.STATION_AUTO_MANAGED_DO_NOT_EDIT.md
+.mcp.json
+.codex/config.toml
+.cursor/mcp.json
+.station/
+.report-evidence/
+# === STATION MANAGED END ===
