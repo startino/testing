@@ -17,6 +17,13 @@ src/*/package-lock.json
 .DS_Store
 *.swp
 
+# agent runtime artifacts
+.claude/
+
+# auth files
+AUTH.md
+AUTH.*.md
+
 # === STATION MANAGED BEGIN — DO NOT EDIT ===
 # Auto-written by web/src/lib/server/mcp-disk-sync/project-file-syncer.ts
 # Edit at /admin/settings/gitignore — rewrites happen within ~2s of save.
