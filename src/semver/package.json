@@ -1,0 +1,14 @@
+{
+  "name": "semver-module",
+  "version": "1.0.0",
+  "description": "Pure, stateless, dependency-free SemVer 2.0.0 parse/compare plus strict caret/tilde range satisfaction (fail-closed).",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=24"
+  },
+  "main": "semver.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}

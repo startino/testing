@@ -8,17 +8,17 @@ import headerSource from '$lib/components/site-header.svelte?raw';
 // hub's public contract -- one card per showcased library, a live link into each
 // demo route, and a callout linking the full generated toolbox catalog. The
 // coming-soon template branch is retained for future libraries but no card uses
-// it now that all three demos are live.
+// it now that every demo is live.
 describe('Playground hub', () => {
 	it('renders the hub section', () => {
 		expect(source).toContain('data-testid="playground-hub"');
 	});
 
 	it('registers a card for every showcased utility library', () => {
-		for (const name of ['Slugify', 'Bytes', 'Duration', 'Csv']) {
+		for (const name of ['Slugify', 'Bytes', 'Duration', 'Csv', 'Semver']) {
 			expect(source).toContain(`name: '${name}'`);
 		}
-		for (const mod of ['src/slug', 'src/bytes', 'src/duration', 'src/csv']) {
+		for (const mod of ['src/slug', 'src/bytes', 'src/duration', 'src/csv', 'src/semver']) {
 			expect(source).toContain(`module: '${mod}'`);
 		}
 		// each demo renders exactly one card, keyed by id
@@ -32,6 +32,7 @@ describe('Playground hub', () => {
 			'/playground/bytes',
 			'/playground/duration',
 			'/playground/csv',
+			'/playground/semver',
 		]) {
 			expect(source).toContain(`href: '${href}'`);
 		}
