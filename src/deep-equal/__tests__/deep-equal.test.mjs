@@ -1,58 +1,72 @@
-// Co-located test suite for the deepEqual module.
-//
-// Runner: Node's built-in `node:test` + `node:assert/strict` (zero deps).
-// Exact command (run from this module dir or the repo root):  npm test
-// (alias for `node --test`).
-//
-// NOTE on the runner: `node --test <DIRECTORY>` FAILS on Node 24 with
-// MODULE_NOT_FOUND. Use bare `node --test` (cwd auto-discovery of *.test.mjs),
-// an explicit glob, or an explicit file path — never a bare directory argument.
-//
-// Every input/expectation lives ONCE in ../fixtures.mjs; this file only asserts.
-
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { CASES, CYCLIC_CASES, FUNCTION_CASES } from "../fixtures.mjs";
 import { deepEqual } from "../deep-equal.mjs";
+import {
+  FORGED_TAGS,
+  GRAPH_CASES,
+  UNSUPPORTED_BUILDERS,
+  VALUE_CASES,
+} from "../fixtures.mjs";
 
-// 1. Flat comparison table. Each case pins deepEqual(a, b) to its expected
-//    boolean. Equality is symmetric under the contract, so we assert BOTH
-//    directions for every case — a fixture only states the pair once, and an
-//    accidentally-asymmetric implementation is caught here.
-for (const { name, a, b, equal } of CASES) {
-  test(`case: ${name}`, () => {
+for (const { name, a, b, equal } of VALUE_CASES) {
+  test(name, () => {
     assert.equal(deepEqual(a, b), equal);
     assert.equal(deepEqual(b, a), equal);
-  });
-}
-
-// 2. Reflexivity: every non-NaN-bearing case's `a` deep-equals itself. (NaN is
-//    handled explicitly in the table above; self-comparison of a value holding
-//    NaN still returns true via SameValueZero, so this holds universally.)
-for (const { name, a } of CASES) {
-  test(`reflexive: ${name}`, () => {
     assert.equal(deepEqual(a, a), true);
+    assert.equal(deepEqual(b, b), true);
   });
 }
 
-// 3. Cyclic structures. Built fresh per case (a literal cannot self-reference),
-//    asserted in both directions. Proves the `seen` cycle guard both terminates
-//    and still distinguishes structurally-different cycles.
-for (const { name, build, equal } of CYCLIC_CASES) {
-  test(`cyclic: ${name}`, () => {
+for (const { name, build, equal } of GRAPH_CASES) {
+  test(name, () => {
     const { a, b } = build();
     assert.equal(deepEqual(a, b), equal);
     assert.equal(deepEqual(b, a), equal);
+    assert.equal(deepEqual(a, a), true);
+    assert.equal(deepEqual(b, b), true);
   });
 }
 
-// 4. Function identity. Same reference equal; distinct references (even with
-//    identical source) unequal, including when nested inside objects.
-for (const { name, build, equal } of FUNCTION_CASES) {
-  test(`function: ${name}`, () => {
-    const { a, b } = build();
-    assert.equal(deepEqual(a, b), equal);
-    assert.equal(deepEqual(b, a), equal);
+for (const [name, build] of UNSUPPORTED_BUILDERS) {
+  test(`${name} is identity-only`, () => {
+    const a = build();
+    const b = build();
+    assert.equal(deepEqual(a, a), true);
+    assert.equal(deepEqual(a, b), false);
+    assert.equal(deepEqual(b, a), false);
   });
 }
+
+for (const tag of FORGED_TAGS) {
+  test(`forged ${tag} tag remains an ordinary object`, () => {
+    const a = { [Symbol.toStringTag]: tag, value: { x: 1 } };
+    const b = { [Symbol.toStringTag]: tag, value: { x: 1 } };
+    assert.equal(deepEqual(a, b), true);
+    b.value.x = 2;
+    assert.equal(deepEqual(a, b), false);
+  });
+}
+
+test("typed views compare content independent of surrounding buffer bytes", () => {
+  const leftBuffer = Uint8Array.from([8, 1, 2, 9]);
+  const rightBuffer = Uint8Array.from([7, 1, 2, 6]);
+  assert.equal(
+    deepEqual(leftBuffer.subarray(1, 3), rightBuffer.subarray(1, 3)),
+    true,
+  );
+});
+
+test("representative transitivity", () => {
+  const build = () => {
+    const root = { items: new Set([{ x: 1 }, { x: 2 }]) };
+    root.self = root;
+    return root;
+  };
+  const a = build();
+  const b = build();
+  const c = build();
+  assert.equal(deepEqual(a, b), true);
+  assert.equal(deepEqual(b, c), true);
+  assert.equal(deepEqual(a, c), true);
+});

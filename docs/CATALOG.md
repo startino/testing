@@ -21,7 +21,7 @@ same modules) see [`src/README.md`](../src/README.md).
 |---|---|---|---|
 | [bytes](../src/bytes/) | Pure, stateless, dependency-free IEC byte-count format/parse (human-readable B/KiB/MiB/GiB/TiB/PiB string, strict inverse, fail-closed). | `src/bytes/index.mjs` | `npm test --prefix src/bytes` |
 | [csv](../src/csv/) | Pure, stateless, dependency-free RFC-4180 CSV codec (parse to rows/objects, stringify with minimal quoting, strict round-trip, fail-closed). | `src/csv/csv.mjs` | `npm test --prefix src/csv` |
-| [deep-equal](../src/deep-equal/) | Pure, stateless, dependency-free structural deep-equality (SameValueZero primitives, tag-gated exotics, cycle-safe). | `src/deep-equal/deep-equal.mjs` | `npm test --prefix src/deep-equal` |
+| [deep-equal](../src/deep-equal/) | Zero-dependency structural equality with SameValueZero primitives, typed arrays, unordered Map/Set matching, and graph-consistent cycle handling. | `src/deep-equal/deep-equal.mjs` | `npm test --prefix src/deep-equal` |
 | [duration](../src/duration/) | Pure, stateless, dependency-free duration format/parse (compact d/h/m/s string, strict inverse, fail-closed). | `src/duration/duration.mjs` | `npm test --prefix src/duration` |
 | [emitter](../src/emitter/) | Pure, dependency-free tiny event emitter (string/symbol keys, unsubscribe handles, once, snapshot dispatch, error-isolated with AggregateError). | `src/emitter/emitter.mjs` | `npm test --prefix src/emitter` |
 | [flags](../src/flags/) | Pure, fail-closed, dependency-free sandbox feature flags (booleans, read once at process start). NOT the Station product feature flag. | `src/flags/flags.mjs` | `npm test --prefix src/flags` |

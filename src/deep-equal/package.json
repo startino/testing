@@ -1,7 +1,7 @@
 {
   "name": "deep-equal-module",
   "version": "1.0.0",
-  "description": "Pure, stateless, dependency-free structural deep-equality (SameValueZero primitives, tag-gated exotics, cycle-safe).",
+  "description": "Zero-dependency structural equality with SameValueZero primitives, typed arrays, unordered Map/Set matching, and graph-consistent cycle handling.",
   "type": "module",
   "private": true,
   "engines": {
