@@ -1,68 +1,71 @@
 # deep-equal
 
-Pure, stateless, **zero-dependency** structural equality for Node v24+ (native
-ESM, typed via JSDoc). Follows the self-contained module shape established by
-[`src/duration/`](../duration/), [`src/unicode/`](../unicode/), [`src/slug/`](../slug/),
-and [`src/flags/`](../flags/).
-
-`deepEqual(a, b)` answers one question: do `a` and `b` have the same **structure**
-and the same **values**, recursively? It is neither `===` (reference identity for
-objects) nor `Object.is` (per-value but non-recursive) — it walks the whole shape.
-
-## API
+Zero-dependency structural equality for supported JavaScript data graphs on
+Node.js 24+. The native ESM entry point exports one stateless function:
 
 ```js
 import { deepEqual } from "./deep-equal.mjs";
 
-deepEqual(1, 1);                                  // true
-deepEqual(NaN, NaN);                              // true  (SameValueZero)
-deepEqual(+0, -0);                                // true  (SameValueZero)
-deepEqual(0, "0");                                // false
-deepEqual({ x: 1, y: 2 }, { y: 2, x: 1 });        // true  (key order independent)
-deepEqual([1, { a: 2 }], [1, { a: 2 }]);          // true
-deepEqual(new Date(1000), new Date(1000));        // true
-deepEqual(/x/gi, /x/ig);                          // true  (flags normalised)
-deepEqual(new Set([1, 2, 3]), new Set([3, 2, 1])); // true  (unordered)
-deepEqual(new Map([["a", 1]]), new Map([["a", 2]])); // false
+deepEqual({ user: { roles: ["admin"] } }, { user: { roles: ["admin"] } }); // true
+deepEqual(NaN, NaN); // true
+deepEqual(new Set([{ id: 1 }, { id: 2 }]), new Set([{ id: 2 }, { id: 1 }])); // true
+deepEqual(new Map([[{ id: 1 }, "ready"]]), new Map([[{ id: 1 }, "ready"]])); // true
+
+const left = { name: "root" };
+const right = { name: "root" };
+left.self = left;
+right.self = right;
+deepEqual(left, right); // true
+
+deepEqual(new Float64Array([NaN, 0]), new Float64Array([NaN, -0])); // true
 ```
 
-## Semantics
+## Contract
 
-- **Primitives / identity — SameValueZero.** `a === b` OR both `NaN` → equal. So
-  `NaN` equals `NaN` and `+0` equals `-0`; every other primitive follows `===`
-  (`0 !== '0'`, `null !== undefined`, `true !== 1`).
-- **Tag gate.** Objects must share `Object.prototype.toString.call(x)` to be
-  comparable. This one gate separates Date / RegExp / Array / Map / Set / each
-  typed-array kind / plain object, and rejects cross-type pairs (an array is
-  never equal to a plain object; an `Int8Array` never equals a `Uint8Array`).
-- **Date** — equal iff same `getTime()` (SameValueZero, so two Invalid Dates are
-  equal).
-- **RegExp** — equal iff same `source` and same `flags`.
-- **Array** — same length, element-wise `deepEqual`.
-- **Typed arrays** — same length, index-wise SameValueZero (same type guaranteed
-  by the tag gate; `DataView` is compared as a plain object).
-- **Map** — same `size`, then structural matching: every `[k, v]` in `a` must
-  find a distinct unused `[k2, v2]` in `b` with both key and value deep-equal
-  (greedy O(n²) — object keys are matched by value, not identity).
-- **Set** — same `size`, structural membership match (same greedy approach).
-- **Function** — identity only; two distinct functions are never deep-equal
-  (the `===` fast path already accepted the same reference).
-- **Plain objects** — own **enumerable** keys only, strings **and** enumerable
-  symbols. Same key count, and every key must be own-enumerable on both sides
-  with deep-equal values. Inherited and non-enumerable properties are ignored.
-- **Cycle-safe.** A `seen` map (`a → b`) is threaded through the recursion, so a
-  self-referential structure terminates instead of overflowing the stack — and
-  still distinguishes two cycles whose shapes differ.
+- Primitives use SameValueZero: `NaN` equals itself and signed zero compares
+  equal. Symbols and functions compare only by identity.
+- Ordinary objects compare the same own enumerable string and symbol keys,
+  independent of key insertion order. Missing properties differ from properties
+  explicitly set to `undefined`; inherited and non-enumerable properties are
+  ignored. Ordinary-object prototypes must be identical, so a null-prototype
+  record or an instance of a different class does not collapse to the same
+  shape.
+- Arrays are ordered and length-sensitive. Sparse holes differ from explicit
+  `undefined`, and additional enumerable string or symbol properties are part
+  of the comparison.
+- Genuine Dates compare intrinsic time values, including equal invalid Dates.
+  Genuine RegExps compare source, flags, `lastIndex`, and additional enumerable
+  properties. A forged `Symbol.toStringTag` cannot impersonate either type.
+- Maps and Sets are unordered and structurally match entries or members one to
+  one. Object Map keys are compared structurally rather than by lookup identity.
+- Genuine typed arrays compare only with the same concrete typed-array brand.
+  Ordered elements use SameValueZero; view offsets, backing-buffer identity, and
+  bytes outside the view do not matter. Additional enumerable non-index string
+  and symbol properties do matter. Numeric, floating-point, and BigInt typed
+  arrays are supported.
+- The comparison preserves graph topology in both directions. Shared references
+  must correspond to shared references, cycles must have the same shape, and a
+  shared subgraph is not equal to two duplicated subgraphs.
 
-`deepEqual` never throws for any pair of JS values and never guesses — a
-mismatched or unrecognised shape simply returns `false`.
+`ArrayBuffer`, `DataView`, `Error`, `WeakMap`, `WeakSet`, promises, DOM objects,
+and other unsupported exotic objects are identity-only. The same reference is
+equal; two distinct instances are not. This module does not claim structural
+equality for every JavaScript host value.
+
+Enumerable accessors and proxies may execute user code or throw while their
+shape is inspected. They are outside the supported-data guarantee, so
+`deepEqual` does not promise purity or a never-throws boundary for those inputs.
+
+## Complexity
+
+Ordered structures and unambiguous objects are traversed linearly in their
+reachable shape. Unordered Map and Set matching uses exhaustive backtracking so
+aliases and cycles remain sound. Ambiguous collections can therefore require
+combinatorial work in the worst case; correctness takes priority over a hash or
+serialization shortcut that cannot represent the full graph contract.
 
 ## Test
 
 ```sh
-npm test          # node --test  (built-in runner, zero deps)
+npm test --prefix src/deep-equal
 ```
-
-All test inputs and expectations live once in [`fixtures.mjs`](./fixtures.mjs);
-[`__tests__/deep-equal.test.mjs`](./__tests__/deep-equal.test.mjs) only asserts,
-checking both directions of each case (equality is symmetric).
