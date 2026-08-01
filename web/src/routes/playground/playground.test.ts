@@ -15,10 +15,17 @@ describe('Playground hub', () => {
 	});
 
 	it('registers a card for every showcased utility library', () => {
-		for (const name of ['Slugify', 'Bytes', 'Duration', 'Csv', 'Semver']) {
+		for (const name of ['Slugify', 'Bytes', 'Duration', 'Csv', 'Semver', 'Deep Equal']) {
 			expect(source).toContain(`name: '${name}'`);
 		}
-		for (const mod of ['src/slug', 'src/bytes', 'src/duration', 'src/csv', 'src/semver']) {
+		for (const mod of [
+			'src/slug',
+			'src/bytes',
+			'src/duration',
+			'src/csv',
+			'src/semver',
+			'src/deep-equal',
+		]) {
 			expect(source).toContain(`module: '${mod}'`);
 		}
 		// each demo renders exactly one card, keyed by id
@@ -33,6 +40,7 @@ describe('Playground hub', () => {
 			'/playground/duration',
 			'/playground/csv',
 			'/playground/semver',
+			'/playground/deep-equal',
 		]) {
 			expect(source).toContain(`href: '${href}'`);
 		}
