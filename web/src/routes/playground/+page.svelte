@@ -9,6 +9,7 @@
 	import TimerIcon from '@lucide/svelte/icons/timer';
 	import TableIcon from '@lucide/svelte/icons/table';
 	import TagsIcon from '@lucide/svelte/icons/tags';
+	import GitCompareArrowsIcon from '@lucide/svelte/icons/git-compare-arrows';
 	import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 	import type { Component } from 'svelte';
 
@@ -69,6 +70,14 @@
 			href: '/playground/semver',
 			icon: TagsIcon,
 		},
+		{
+			id: 'deep-equal',
+			name: 'Deep Equal',
+			blurb: 'Compare nested data graphs with cycle-safe, alias-aware structural equality across objects, collections, dates, regular expressions, and typed arrays.',
+			module: 'src/deep-equal',
+			href: '/playground/deep-equal',
+			icon: GitCompareArrowsIcon,
+		},
 	];
 
 	const liveCount = demos.filter((demo) => demo.href !== null).length;
@@ -78,7 +87,7 @@
 	<title>Playground -- Startino Sandbox</title>
 	<meta
 		name="description"
-		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, duration formatting, RFC-4180 CSV parsing, and SemVer parse/compare/satisfies."
+		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, duration formatting, RFC-4180 CSV parsing, SemVer, and structural deep equality."
 	/>
 </svelte:head>
 
@@ -145,7 +154,7 @@
 	</div>
 
 	<!-- These interactive demos are a curated slice; the full zero-dependency
-	 toolbox (deep-equal, emitter, pipe, result, retry, unicode, and more) is
+	 toolbox (emitter, pipe, result, retry, unicode, and more) is
 	 catalogued in the generated src/README.md. -->
 	<Card.Root
 		class="from-primary/5 mt-4 bg-gradient-to-br to-transparent"
