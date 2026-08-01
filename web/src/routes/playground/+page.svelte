@@ -8,6 +8,7 @@
 	import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 	import TimerIcon from '@lucide/svelte/icons/timer';
 	import TableIcon from '@lucide/svelte/icons/table';
+	import TagsIcon from '@lucide/svelte/icons/tags';
 	import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 	import type { Component } from 'svelte';
 
@@ -60,6 +61,14 @@
 			href: '/playground/csv',
 			icon: TableIcon,
 		},
+		{
+			id: 'semver',
+			name: 'Semver',
+			blurb: 'Parse strict SemVer 2.0.0 versions, order them by precedence, and test them against caret, tilde, and exact ranges -- fail-closed on everything else.',
+			module: 'src/semver',
+			href: '/playground/semver',
+			icon: TagsIcon,
+		},
 	];
 
 	const liveCount = demos.filter((demo) => demo.href !== null).length;
@@ -69,7 +78,7 @@
 	<title>Playground -- Startino Sandbox</title>
 	<meta
 		name="description"
-		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, duration formatting, and RFC-4180 CSV parsing."
+		content="Interactive demos for the Startino testing monorepo's zero-dependency src/ utility libraries: slugify, bytes, duration formatting, RFC-4180 CSV parsing, and SemVer parse/compare/satisfies."
 	/>
 </svelte:head>
 
@@ -154,7 +163,9 @@
 				<div class="space-y-1">
 					<Card.Title>The full toolbox</Card.Title>
 					<Card.Description>
-						These demos showcase four of the monorepo's zero-dependency
+						<!-- Interpolated, not spelled out: the previous hard-coded "four"
+						 went stale the moment a fifth demo landed. -->
+						These demos showcase {demos.length} of the monorepo's zero-dependency
 						<code class="bg-muted rounded px-1 py-0.5 text-xs">src/</code>
 						libraries. The complete, auto-generated catalog lists every module.
 					</Card.Description>

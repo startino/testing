@@ -27,6 +27,7 @@ where the committed file has drifted from a fresh render.
 | [pipe](./pipe/) | Pure, stateless, dependency-free function-composition helpers (pipe, compose, flow, tap, identity). | `pipe/pipe.mjs` |
 | [result](./result/) | Pure, immutable, dependency-free Result/Either type for typed error handling without exceptions. | `result/result.mjs` |
 | [retry](./retry/) | Pure, zero-runtime-dependency async retry with exponential backoff + full jitter and injectable sleep/random seams. | `retry/retry.ts` |
+| [semver](./semver/) | Pure, stateless, dependency-free SemVer 2.0.0 parse/compare plus strict caret/tilde range satisfaction (fail-closed). | `semver/semver.mjs` |
 | [slug](./slug/) | Pure, stateless, dependency-free Unicode-aware slugify (NFKD diacritic-fold, fail-closed). | `slug/slug.mjs` |
 | [timing](./timing/) | Pure, dependency-free debounce/throttle timing utility (lodash-faithful semantics: leading/trailing/maxWait, cancel/flush/pending). | `timing/timing.mjs` |
 | [unicode](./unicode/) | Pure, stateless, dependency-free Unicode-correct text processing (NFC, grapheme-aware length/slice). | `unicode/text.mjs` |
