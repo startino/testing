@@ -57,6 +57,33 @@ test("typed views compare content independent of surrounding buffer bytes", () =
   );
 });
 
+test("subclasses of unsupported native exotics remain identity-only", () => {
+  class DerivedBuffer extends ArrayBuffer {}
+  class DerivedError extends Error {}
+
+  for (const build of [
+    () => new DerivedBuffer(4),
+    () => new DerivedError("same"),
+  ]) {
+    const a = build();
+    const b = build();
+    assert.equal(deepEqual(a, a), true);
+    assert.equal(deepEqual(a, b), false);
+    assert.equal(deepEqual(b, a), false);
+  }
+});
+
+test("ordinary constructors may mention native-code text", () => {
+  class NativeText {
+    // [native code] is ordinary source text, not an intrinsic brand.
+    constructor(value) {
+      this.value = value;
+    }
+  }
+
+  assert.equal(deepEqual(new NativeText(1), new NativeText(1)), true);
+});
+
 test("representative transitivity", () => {
   const build = () => {
     const root = { items: new Set([{ x: 1 }, { x: 2 }]) };

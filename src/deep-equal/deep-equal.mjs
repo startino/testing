@@ -35,6 +35,8 @@ const typedArrayPrototype = Object.getPrototypeOf(Uint8Array.prototype);
 const typedArrayBrand = /** @type {(this: object) => string | undefined} */ (
   Object.getOwnPropertyDescriptor(typedArrayPrototype, Symbol.toStringTag)?.get
 );
+const nativeFunctionSource =
+  /^function\s+[^()]*(?:\([^)]*\))\s*\{\s*\[native code\]\s*\}$/;
 
 /** @param {unknown} a @param {unknown} b */
 function sameValueZero(a, b) {
@@ -103,12 +105,19 @@ function isTypedArray(value) {
  * @param {object} value
  */
 function isOrdinaryObject(value) {
-  const prototype = Object.getPrototypeOf(value);
-  if (prototype === null || prototype === Object.prototype) return true;
-  if (!hasOwn.call(prototype, "constructor")) return true;
-  const constructor = prototype.constructor;
-  if (typeof constructor !== "function") return true;
-  return !functionToString.call(constructor).includes("[native code]");
+  let prototype = Object.getPrototypeOf(value);
+  while (prototype !== null && prototype !== Object.prototype) {
+    if (hasOwn.call(prototype, "constructor")) {
+      const constructor = prototype.constructor;
+      if (
+        typeof constructor === "function" &&
+        nativeFunctionSource.test(functionToString.call(constructor))
+      )
+        return false;
+    }
+    prototype = Object.getPrototypeOf(prototype);
+  }
+  return true;
 }
 
 /** @param {object} value */
