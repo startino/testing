@@ -23,11 +23,19 @@ Only the `web/` app installs packages.
 ```sh
 git clone https://github.com/startino/testing.git
 cd testing
+npm run pulse
 npm run doctor -- --quick
 ```
 
-The quick run needs no installation. It completes in approximately one second.
-It tells you if the checkout is complete and if the documentation is current.
+`npm run pulse` reports the state of the checkout: the branch and its position
+against the tracked base, a clean or changed worktree, the latest commit, the
+project manifests, and the verification commands of this repository. It reads
+local data only. It changes nothing. Run it when you start work and before you
+push.
+
+The quick doctor run needs no installation. It completes in approximately one
+second. It tells you if the checkout is complete and if the documentation is
+current.
 
 Before you push a change, run the full check:
 
@@ -61,6 +69,8 @@ repository.
 
 | Command | Result |
 |---|---|
+| `npm run pulse` | Prints the state of the checkout. It runs no check. It always exits 0. |
+| `npm run pulse -- --json` | Prints the same facts as JSON. |
 | `npm run doctor` | Runs each check in this table, plus the environment and layout checks. |
 | `npm run doctor -- --quick` | Runs the fast checks only. It omits the test suite and the `web/` app. |
 | `npm run doctor -- --list` | Prints the check list. It runs no check. |

@@ -85,6 +85,10 @@ dominant factor in whether an unattended agent succeeds. When authoring an item:
 - **Health check:** `npm run doctor` runs every gate that CI runs, plus the
   environment and layout checks. Use `npm run doctor -- --quick` for the fast
   static checks. See [`docs/QUICKSTART.md`](./docs/QUICKSTART.md).
+- **Pulse:** `npm run pulse` prints the state of the checkout — branch, worktree,
+  latest commit, manifests, and the verification commands. It reads local data
+  only and never fails. Run it to orient yourself; run the doctor to know if the
+  change is ready. See [`scripts/pulse.mjs`](./scripts/pulse.mjs).
 - **Test:** `npm test` runs the whole suite through
   [`scripts/test-all.mjs`](./scripts/test-all.mjs). It discovers each `src/<name>/`
   module that declares a `test` script and runs the module with its own runner.
