@@ -80,16 +80,26 @@ dominant factor in whether an unattended agent succeeds. When authoring an item:
 
 ## Build & test
 
-- **Build:** none at the repo root — there is no top-level compile or build step
-  (no root `package.json`, `Makefile`, or `pyproject.toml`).
-- **Test:** there is no root test harness. A `src/<name>/` module is tested with
-  `node --test` from inside that module. The `web/` app runs with
-  `cd web && npm install && npm run dev` (see [`DEV.md`](./DEV.md)). In the broad
-  sense, "testing" *is* Station running its Prose programs end-to-end against this
-  repo.
+- **Build:** none at the repo root. The `src/` modules need no compile step. Only
+  the `web/` app has a build (`cd web && npm run build`).
+- **Health check:** `npm run doctor` runs every gate that CI runs, plus the
+  environment and layout checks. Use `npm run doctor -- --quick` for the fast
+  static checks. See [`docs/QUICKSTART.md`](./docs/QUICKSTART.md).
+- **Test:** `npm test` runs the whole suite through
+  [`scripts/test-all.mjs`](./scripts/test-all.mjs). It discovers each `src/<name>/`
+  module that declares a `test` script and runs the module with its own runner.
+  It also runs the `web/` app tests. To test one module, use
+  `npm test --prefix src/<name>`. Run the `web/` app with
+  `cd web && npm install && npm run dev` (see [`DEV.md`](./DEV.md)).
+- **Generated docs:** `npm run gen:docs` writes `src/README.md` and
+  `npm run gen:catalog` writes `docs/CATALOG.md`. CI fails a change that leaves
+  either file stale.
 
 ## More context
 
+- [`docs/QUICKSTART.md`](./docs/QUICKSTART.md) — the 10-minute path for a new
+  contributor: prerequisites, first commands, repository map, and the
+  command-to-gate table.
 - [`README.md`](./README.md) — why this repo exists.
 - [`CONTEXT.md`](./CONTEXT.md) — feature-flag and duration-format vocabulary.
 - [`CLAUDE.md`](./CLAUDE.md) — the full agent/contributor rationale.

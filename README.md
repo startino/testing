@@ -60,6 +60,21 @@ CI runs the same command on every pull request and on pushes to `alpha` via
 auto-merge policy above depends on: a PR only reaches `alpha` once the suite is
 green. See [`docs/ci-notes.md`](./docs/ci-notes.md) for details.
 
+To run every CI gate locally in one command — plus an environment preflight, the
+`src/` layout invariants, and the Markdown link graph — use the repository health
+check:
+
+```sh
+npm run doctor           # full: adds the test suite and the web app checks
+npm run doctor -- --quick  # fast: static checks only, no install
+```
+
+## Quick start
+
+New here? **[`docs/QUICKSTART.md`](./docs/QUICKSTART.md)** is the 10-minute
+path: prerequisites, the first commands, the repository map, the command-to-gate
+table, how to add a library, and how a change lands on `alpha`.
+
 ## Library catalog
 
 Every `src/` library is indexed in **[`docs/CATALOG.md`](./docs/CATALOG.md)** —
