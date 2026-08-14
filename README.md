@@ -69,6 +69,10 @@ It is produced from the modules on disk by
 (`node scripts/gen-catalog.mjs --check`), so it can never silently fall out of
 date as libraries are added or renamed.
 
+For composed workflows, see the **[Library Cookbook](./docs/LIBRARY_COOKBOOK.md)**.
+Its runnable examples cover CSV validation, explicit results, strict durations,
+function pipelines, retry control, and LRU caching.
+
 ## What's *not* throwaway
 
 The repo itself stays — only its *contents* are disposable. Treat
