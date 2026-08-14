@@ -69,6 +69,24 @@ npm run doctor           # full: adds the test suite and the web app checks
 npm run doctor -- --quick  # fast: static checks only, no install
 ```
 
+## Repository pulse
+
+To see the state of your checkout before you start work or push a change, run:
+
+```sh
+npm run pulse
+```
+
+[`scripts/pulse.mjs`](./scripts/pulse.mjs) prints one report: the current
+branch and its position against the tracked base, a clean or changed worktree,
+the latest commit, the project manifests on disk, and the verification commands
+of this repository with the steps continuous integration gates on. It reads
+local data only, it changes nothing, and it always exits 0. Add `--json` for
+the same facts in machine form.
+
+`npm run pulse` reports. `npm run doctor` judges. Use the pulse to orient
+yourself; use the doctor to know if the change is ready.
+
 ## Quick start
 
 New here? **[`docs/QUICKSTART.md`](./docs/QUICKSTART.md)** is the 10-minute
