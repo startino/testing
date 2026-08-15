@@ -31,10 +31,16 @@ usageEffect: none
 
 Moved the build context to the repository root and kept every command scoped to `web`:
 
-- Railway service `rootDirectory` changed from `/web` to `/`.
+- Railway service `rootDirectory` changed from `/web` to `/`, and `railwayConfigFile` set to `railway.json`. Both changes were applied to the `alpha` environment through the Railway GraphQL API.
 - Added `railway.json` at the repository root. It pins `builder: RAILPACK`, `buildCommand: "npm ci --prefix web --include=dev --no-audit --no-fund && npm run build --prefix web"`, and `startCommand: "node web/build"`.
 - `--include=dev` is deliberate. The build tools of the app are development dependencies, and the build image can set `NODE_ENV=production`.
 
 The build context now contains `src/`, so the six adapter modules resolve. Install, build, and start still act on `web` only.
 
-**Commit:** see the pull request that introduces `railway.json`
+## Proof
+
+The alpha deployment of the merge commit reported `SUCCESS` with `rootDirectory: "/"` and the two commands above in its manifest. `https://testing-alpha.up.railway.app/` then served the new page with the title `Release Readiness`.
+
+**Note for a future reader:** an ephemeral Railway environment, such as a pull-request preview, does not inherit a later change to the `alpha` service instance. It copies the settings that exist when the environment is created. Set `rootDirectory` on the new environment too, or its build fails with the same six errors.
+
+**Commit:** `7e055de` (pull request #67)
