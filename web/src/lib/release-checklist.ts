@@ -1,3 +1,5 @@
+import { formatDuration } from './duration.js';
+
 export type ReleasePhase = 'plan' | 'verify' | 'launch' | 'follow';
 
 export type ReleaseChecklistDefinition = Readonly<{
@@ -17,6 +19,10 @@ export type ReleaseChecklistState = {
 };
 
 export type ReleaseView = 'all' | 'remaining' | 'completed';
+
+export type ReleaseDueTone = 'none' | 'today' | 'upcoming' | 'overdue';
+
+export type ReleaseDueStatus = Readonly<{ tone: ReleaseDueTone; label: string }>;
 
 export const RELEASE_STORAGE_KEY = 'startino.release-readiness.v1';
 export const RELEASE_STORAGE_VERSION = 1;
@@ -137,6 +143,43 @@ export function getReleaseProgress(state: ReleaseChecklistState) {
 	const remaining = total - completed;
 	const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
 	return { completed, total, remaining, percent };
+}
+
+const MS_PER_DAY = 86400000;
+const NO_DUE_STATUS: ReleaseDueStatus = { tone: 'none', label: '' };
+
+// Local calendar day as an ISO `YYYY-MM-DD` string -- the same shape a
+// `<input type="date">` reads and writes, so the due date and "today" are
+// compared in the user's own timezone rather than UTC.
+export function toIsoDate(now: Date): string {
+	const year = String(now.getFullYear()).padStart(4, '0');
+	const month = String(now.getMonth() + 1).padStart(2, '0');
+	const day = String(now.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
+// Turns a due date into a human status relative to `today`. The elapsed span is
+// rendered by the monorepo's shipped `src/duration` library rather than a second
+// copy of the same unit decomposition -- whole days in, a compact "3d" out.
+// Fail-closed on every input the checklist can hold but the calendar cannot
+// resolve: an empty, malformed, or impossible date yields no status at all.
+export function getReleaseDueStatus(dueDate: string, today: string): ReleaseDueStatus {
+	if (dueDate === '' || today === '') return NO_DUE_STATUS;
+	if (!isValidDueDate(dueDate) || !isValidDueDate(today)) return NO_DUE_STATUS;
+
+	const due = Date.parse(`${dueDate}T00:00:00Z`);
+	const start = Date.parse(`${today}T00:00:00Z`);
+	if (!Number.isFinite(due) || !Number.isFinite(start)) return NO_DUE_STATUS;
+
+	const days = Math.round((due - start) / MS_PER_DAY);
+	if (days === 0) return { tone: 'today', label: 'Due today' };
+
+	const span = formatDuration(Math.abs(days) * MS_PER_DAY);
+	if (span === null) return NO_DUE_STATUS;
+
+	return days > 0
+		? { tone: 'upcoming', label: `Due in ${span}` }
+		: { tone: 'overdue', label: `Overdue by ${span}` };
 }
 
 export function getVisibleReleaseGroups(
