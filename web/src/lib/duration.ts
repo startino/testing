@@ -5,10 +5,13 @@
 // intentionally no second copy of the algorithm here. Re-exporting keeps a
 // single source of truth: the largest-to-smallest unit decomposition, the
 // strict grammar, and the fail-closed behavior documented in that module is
-// exactly what /playground/duration previews.
+// exactly what the release checklist's due-date status renders.
 //
 // The import path escapes the SvelteKit `web/` root by design; duration.mjs
-// lives under the monorepo root and Vite's default workspace-root fs allowance
-// (the repo's .git) covers it for both `vite dev` and `vite build` -- the same
-// path the slugify adapter already relies on.
+// lives under the monorepo root. Vite's default workspace-root fs allowance
+// (the repo's .git) covers it for `vite dev` and `vite build`, and the Railway
+// service builds from the repository ROOT -- with install, build, and start
+// scoped to `web` by railway.json -- so the same path resolves in the deployed
+// build. Narrowing the deploy build context back to `web/` breaks this import;
+// see docs/fixes/S0004-railway-alpha-build-fails-because-the-web-root-directory-excludes-repository-src.md.
 export { formatDuration, parseDuration } from '../../../src/duration/duration.mjs';

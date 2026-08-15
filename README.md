@@ -39,6 +39,22 @@ Station's AI, with no human in the loop.
   rule), with no manual approval step. Auto-merge is enabled on the PR as soon
   as it is opened so a green build flows straight to `alpha`.
 
+## The public product
+
+The deployed app under `web/` is **one product: Release Readiness** — a release
+checklist with owners, due dates, overdue warnings, and progress kept in the
+browser. It is live at
+[`https://testing-alpha.up.railway.app`](https://testing-alpha.up.railway.app)
+and it is the only public page besides the `/health` endpoint.
+
+The shadcn-svelte primitives and the adapters over the `src/` libraries stay in
+the tree as **internal implementation**. They have no showcase route and no
+navigation entry: the product is the surface, the library layer is not.
+
+Railway builds the app from the **repository root** so those adapters can import
+the `src/` libraries; `railway.json` keeps install, build, and start scoped to
+`web`. See [`DEV.md`](./DEV.md).
+
 ## Testing & CI
 
 The repo is a monorepo of small zero-dependency modules under `src/` (each with

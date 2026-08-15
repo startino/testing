@@ -15,9 +15,9 @@
 	<div
 		class="text-muted-foreground mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-6 text-sm sm:flex-row sm:px-6"
 	>
-		<p>&copy; {year} Startino &mdash; testing sandbox.</p>
+		<p>&copy; {year} Startino &mdash; Release Readiness.</p>
 		<p class="flex items-center gap-3">
-			<span>SvelteKit + Tailwind v4 + shadcn-svelte</span>
+			<span>Progress stays in this browser.</span>
 			<a
 				href="https://github.com/startino/testing"
 				target="_blank"
