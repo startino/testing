@@ -1,12 +1,18 @@
 # AUTO-MANAGED FILE — DO NOT EDIT IN PLACE
 
-`CLAUDE.md` and `AGENTS.md` in this directory are managed by the Station
-`station-agent-rules-syncer` daemon (source:
-`web/src/lib/server/agent-rules-syncer/syncer.ts`).
+`AGENTS.md` in this directory is managed by the Station agent-rules syncer.
+`CLAUDE.md` is a symlink to `AGENTS.md`, so the two cannot drift.
 
-The daemon bidi-syncs these files with the Convex project-rules sections:
-on-disk edits sync up on the next beacon tick, but any Convex-side change
-will silently overwrite your local edit within seconds.
+The Agent Rules Janitor source is `services/api/src/station/daemons/agent_rules_janitor.py`.
+The loop runs inside the `station-api` systemd service. There is no separate
+systemd unit for it.
 
-To change content reliably, edit through the Station UI rather than the
-file directly.
+The Agent Rules Janitor writes the block between `<!-- station-rules-start -->` and
+`<!-- station-rules-end -->` from the Convex project-rules sections.
+
+A disk edit to a project-scope section syncs up to Convex on the next tick.
+A disk edit to a platform-scope or org-scope section does not. Station
+overwrites it within seconds and records it in `projectRulesDroppedEdits`.
+
+To change a rule reliably, edit it in the Station rules UI or with the
+Station rules tools. Do not edit the managed block in this file.
