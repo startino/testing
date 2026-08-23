@@ -68,33 +68,3 @@ _Avoid_: "prereleases are excluded" (they are not -- they are admitted only for 
 **fail-closed (`src/semver/`)**:
 The same doctrine as the flag and duration libraries, with one shape difference worth stating: `parse` and `compare` return `null`, but `satisfies` returns `false`. A boolean predicate has no third state in which to report "I could not read that", so an unreadable version, an unreadable range, and an unsupported range form all answer `false`. Nothing in the module throws, for any input.
 _Avoid_: reading a `satisfies` result of `false` as "does not match" alone (it also covers "not understood" -- use `parse` to tell the two apart).
-
-## Relationships
-
-- A **feature flag (testing sandbox)** is resolved by the `src/flags/` library from the **FLAGS_ENV**-selected config default, overridden by a matching **FLAG_<NAME>**, defaulting **fail-closed**.
-- A **feature flag (testing sandbox)** is NOT a **Station product feature flag**: the former lives in checked-in code + a boot-time env override; the latter lives in Convex gated by a permission.
-- The **refresh model (sandbox flags)** is "re-run the process" precisely because **FLAG_<NAME>** is read once at boot and there is no long-lived process to reload.
-- `formatDuration` produces a **duration string**; `parseDuration` is its strict **inverse (`src/duration/`)**, accepting only that grammar.
-- The **round-trip law (`src/duration/`)** binds the two: total on the output grid, lossy and one-directional off it.
-- Both `src/duration/` functions are **fail-closed (`src/duration/`)** -- `null`, never a throw, on bad input.
-- `parse` reads a **version string (`src/semver/`)**; `compare` orders two of them by **precedence (`src/semver/`)**; `satisfies` tests one against a **simple range (`src/semver/`)**.
-- A **simple range (`src/semver/`)** is built from a **version string (`src/semver/`)**, so every rejection `parse` makes is also a range rejection: `^v1.2.3` and `^1.2` are unsupported for the same reason `v1.2.3` and `1.2` are unparseable.
-- The **prerelease gate (`src/semver/`)** is the one range rule that does not follow from **precedence (`src/semver/`)** alone: `1.2.4-alpha` sorts inside `>=1.2.3 <2.0.0` and is still excluded from `^1.2.3`.
-- **fail-closed (`src/semver/`)** and **fail-closed (`src/duration/`)** are the same doctrine at different return types -- `null` where a value is expected, `false` where a predicate is.
-
-## Example dialogue
-
-> **Dev:** "We need to flag this experimental path on in CI. Do I add it to Convex `appSettings` like the product flags?"
-> **Architect:** "No -- that is a **Station product feature flag**, and this sandbox has no Convex. Here a **feature flag (testing sandbox)** is a boolean in `flags.config.mjs` under the `ci` environment, read via `isEnabled`. To flip it for one run without committing, set **FLAG_<NAME>=1** -- that override is read once at process start."
-> **Dev:** "What if I typo the flag name?"
-> **Architect:** "It resolves **fail-closed** to `false`. An unknown flag never enables an experimental path -- same if **FLAGS_ENV** names an environment that isn't in the config: every flag is `false` and nothing throws."
-
-## Flagged ambiguities
-
-- "feature flag" was used to mean both the sandbox boolean and the Station product's Convex-backed toggle -- resolved: these are distinct artifacts. In this repo, an unqualified "feature flag" means **feature flag (testing sandbox)**; the product concept is always written out as **Station product feature flag**.
-- "without redeploying" implied a running deployment that does not exist here -- resolved: it means changing behavior via the boot-time **FLAG_<NAME>** override without editing and committing the checked-in config; there is no deploy in this sandbox.
-- "inverse" for `parseDuration` could mean either a strict reverse of `formatDuration`'s output or a forgiving human-duration parser -- resolved: in `src/duration/` **inverse (`src/duration/`)** is strict; non-emitted forms fail closed to `null`. A lenient parser would be a distinct additive layer, not this term widened.
-- "round-trip" implied a symmetric `parse(format(x)) === x` for any `x` -- resolved: the **round-trip law (`src/duration/`)** is total only on the output grid; the one-decimal sub-second format is lossy off it, so the identity is one-directional there.
-- "semver range" implied the full npm range grammar -- resolved: in `src/semver/` the term is **simple range (`src/semver/`)** and covers exactly `^`, `~`, and an exact version. Comparators, x-ranges, hyphen ranges, and unions are outside it and answer `false`. Widening the language would be a separate additive layer, never this term stretched.
-- `compare(a, b) === 0` was read as "same version" -- resolved: it means equal **precedence (`src/semver/`)**, and build metadata is excluded from precedence, so `1.2.3+a` and `1.2.3+b` compare equal while being different strings. String identity is a separate question from ordering.
-- "fails closed" was read as "returns `null`" everywhere -- resolved: **fail-closed (`src/semver/`)** is `null` from `parse` and `compare` but `false` from `satisfies`, because a predicate has no third state. A `false` therefore means "does not match OR not understood"; call `parse` to separate them.
