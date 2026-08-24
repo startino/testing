@@ -1,17 +1,16 @@
 ---
-kind: fix
 number: 4
-title: Railway alpha build fails because the web root directory excludes repository src modules
+title: Railway alpha build fails because the web root directory excludes
+  repository src modules
 status: resolved
 retired: false
-relations:
-  supersedes: []
+relations: {}
 date: 2026-08-15
 tags: [railway, deploy, build-context, web, monorepo]
-usageEffect: none
+usage-effect: none
 ---
 
-# Railway alpha build fails because the web root directory excludes repository src modules
+**Status:** Resolved
 
 **Date:** 2026-08-15
 **Symptom:** The Railway alpha deployment of commit `8001164` failed. `https://testing-alpha.up.railway.app/` continued to serve an older successful build, so the failure was not visible in the browser.
