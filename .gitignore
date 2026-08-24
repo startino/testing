@@ -31,6 +31,8 @@ AUTH.*.md
 .cursor/mcp.json
 *.STATION_AUTO_MANAGED_DO_NOT_EDIT.md
 .mcp.json
+.agents/
+.claude/
 .codex/config.toml
 .station/
 # === STATION MANAGED END ===
