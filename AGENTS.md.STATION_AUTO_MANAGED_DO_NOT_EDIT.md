@@ -4,7 +4,7 @@
 `CLAUDE.md` is a symlink to `AGENTS.md`, so the two cannot drift.
 
 The Agent Rules Janitor source is `services/api/src/station/daemons/agent_rules_janitor.py`.
-The loop runs inside the `station-api` systemd service. There is no separate
+The loop operates inside the `station-api` systemd service. There is no separate
 systemd unit for it.
 
 The Agent Rules Janitor writes the block between `<!-- station-rules-start -->` and
