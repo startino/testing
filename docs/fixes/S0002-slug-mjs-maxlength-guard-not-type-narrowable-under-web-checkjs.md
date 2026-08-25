@@ -2,7 +2,7 @@
 number: 2
 title: slug.mjs maxLength guard not type-narrowable under web checkJs
 status: resolved
-retired: false
+relations: {}
 date: 2026-07-10
 ---
 

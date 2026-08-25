@@ -3,7 +3,6 @@ number: 4
 title: Railway alpha build fails because the web root directory excludes
   repository src modules
 status: resolved
-retired: false
 relations: {}
 date: 2026-08-15
 tags: [railway, deploy, build-context, web, monorepo]

@@ -2,7 +2,7 @@
 number: 3
 title: Keep native exotic subclasses identity-only in deepEqual
 status: resolved
-retired: false
+relations: {}
 date: 2026-08-02
 tags: [deep-equal, javascript, intrinsic-branding]
 usage-effect: none
