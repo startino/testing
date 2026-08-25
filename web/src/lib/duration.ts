@@ -12,6 +12,5 @@
 // (the repo's .git) covers it for `vite dev` and `vite build`, and the Railway
 // service builds from the repository ROOT -- with install, build, and start
 // scoped to `web` by railway.json -- so the same path resolves in the deployed
-// build. Narrowing the deploy build context back to `web/` breaks this import;
-// see docs/fixes/S0004-railway-alpha-build-fails-because-the-web-root-directory-excludes-repository-src.md.
+// build. Narrowing the deploy build context back to `web/` breaks this import.
 export { formatDuration, parseDuration } from '../../../src/duration/duration.mjs';

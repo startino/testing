@@ -69,7 +69,7 @@ dominant factor in whether an unattended agent succeeds. When authoring an item:
   feature flags or behavioral toggles: sandbox flags live in the `src/flags/`
   library (per [`CONTEXT.md`](./CONTEXT.md) / `docs/adr/0001`), and the Station
   *product*'s flags live in Convex — they are never the same artifact. Non-trivial
-  fixes are logged via the Station docs MCP `docs_add` (`kind: "fix"`).
+  durable decisions are recorded as ADRs.
 - **Prefer the proven deliverable shapes.** A new module follows the
   `src/<name>/` shape — a self-contained, zero-dependency Node v24+ ESM module
   (own `package.json`, JSDoc-typed, `README.md`, tests run with `node --test`).
