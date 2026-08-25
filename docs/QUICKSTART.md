@@ -46,7 +46,7 @@ continuous-integration run. See section 4.
 | [`src/`](../src/) | One directory for each zero-dependency library. Each directory has its own `package.json`, entry file, `README.md`, and tests. |
 | [`web/`](../web/) | The SvelteKit application. See [`DEV.md`](../DEV.md) to run it. |
 | [`scripts/`](../scripts/) | Repository commands. Each command uses Node.js built-in modules only. |
-| [`docs/`](./) | This page, the [catalog](./CATALOG.md), the [cookbook](./LIBRARY_COOKBOOK.md), decision records, and fix records. |
+| [`docs/`](./) | This page, the [catalog](./CATALOG.md), the [cookbook](./LIBRARY_COOKBOOK.md), and decision records. |
 | [`examples/`](../examples/) | Runnable programs that the cookbook explains. |
 | `.github/workflows/` | The continuous-integration workflow. |
 
