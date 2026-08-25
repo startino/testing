@@ -2,7 +2,7 @@
 number: 1
 title: TypeScript + vitest sanctioned for self-contained src/ leaf libraries
 status: accepted
-retired: false
+relations: {}
 date: 2026-07-05
 tags: [src, typescript, vitest, tooling, convention, leaf-library]
 ---

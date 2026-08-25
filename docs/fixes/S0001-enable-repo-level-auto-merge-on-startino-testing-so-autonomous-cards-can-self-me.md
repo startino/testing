@@ -3,7 +3,7 @@ number: 1
 title: Enable repo-level auto-merge on startino/testing so autonomous cards can
   self-merge
 status: resolved
-retired: false
+relations: {}
 date: 2026-07-10
 ---
 
