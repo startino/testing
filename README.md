@@ -6,17 +6,16 @@ exercise itself against during development.
 
 ## Why this repo exists
 
-Station runs Prose programs (`fix`, `feature`, `test`, `dod`, …) that create
-Kanban items, write code, open PRs, and push commits. Until now it has been
-doing all of that against its own repo (`/shared/station`), which clutters
-Station's real Kanban board with throwaway test items.
+Station runs Item Processes that create Kanban Items, write code, open pull
+requests, and push commits. Running those checks against `/shared/station`
+would clutter Station's real board with throwaway test Items.
 
 This repo is the dedicated target instead. Station has **full freedom** here:
 
 - create as many Kanban items as it wants
 - create, edit, and delete files
 - branch, commit, push, and open PRs
-- run any of its programs end-to-end
+- run Item Processes end-to-end
 
 Nothing here is precious. If it breaks, it gets fixed or wiped. The point is
 to have a realistic project to test against without polluting Station's own
