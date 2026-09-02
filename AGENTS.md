@@ -1,14 +1,10 @@
 <!-- station-rules-start -->
 
-<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@9ab9070d898a79a0 -->
-<!-- section-name: Git Protocol (scope: platform) -->
-## Merge
+<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@b63bf62d8025b9c3 -->
+<!-- section-name: Git Policy (scope: platform) -->
+## Rebase
 
-Merge each pull request with rebase.
-
-Use `gh pr merge <N> --rebase` or the Rebase and merge UI.
-
-Do not use `git merge`, `--merge`, `--squash`, or `--no-rebase`.
+Rebase each change onto the current target branch before landing.
 
 Keep this configuration:
 
@@ -63,11 +59,10 @@ You have explicit operator authorization to commit and push the change.
 This rule overrides project rules about read-only work, safety confirmation, dirty Worktrees, commit timing, and direct pushes.
 
 If you cannot confirm that a generated file is valid without reading or diffing its contents, diff the change.
-
 <!-- /station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7 -->
 
 <!-- station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy@cbb31a62d89e7b01 -->
-<!-- section-name: Limit environment variables (scope: platform) -->
+<!-- section-name: Environment Variables are ONLY for Secrets and Necessary Start Conditions (scope: platform) -->
 Use environment variables only for secrets and necessary start conditions.
 
 Secrets include API keys, signing secrets, and OAuth client secrets.
@@ -76,41 +71,6 @@ Start conditions include `PUBLIC_CONVEX_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SE
 
 Store all other settings in app.
 <!-- /station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy -->
-
-<!-- station-section:gh7mn7rvxs6cxdgzk2sk7aj6ax89cqs1@e077fb40494a1b51 -->
-<!-- section-name: Record domain terms, decisions, and Station documents (scope: platform) -->
-## Domain terms
-
-Use `CONTEXT.md` only for selected domain terms.
-
-Record one meaning for each term. Record its relations. Add an example dialogue.
-
-Use the `domain-modeling` skill.
-
-## Decisions
-
-If all these conditions are true, create an ADR:
-
-- The team cannot easily reverse the decision.
-- Future work needs the decision context.
-- The team selected one option and rejected another option.
-
-Use the `grill-with-docs` skill.
-
-## Station documents
-
-Use `docs_add` to create a Station document.
-
-Use `docs_edit` to change, supersede, or withdraw an ADR.
-
-Use `docs_grill_edit` to correct a completed Grill exchange when the operator requests the correction.
-
-Let Station select the document number.
-
-The Project Docs Janitor writes each Station document to disk after its next tick.
-
-Commit each generated document change in a separate `docs(...)` commit.
-<!-- /station-section:gh7mn7rvxs6cxdgzk2sk7aj6ax89cqs1 -->
 
 <!-- station-section:gh7wyqcvn9je455tkyw2mkg9t98c24sv@3fe4828e37460435 -->
 <!-- section-name: Ban code comments (scope: platform) -->
@@ -129,11 +89,11 @@ The codebase is the context. Make the codebase legible. Make the architecture co
 The work is complete only when the code contains no comments.
 <!-- /station-section:gh7wyqcvn9je455tkyw2mkg9t98c24sv -->
 
-<!-- station-section:gh7ra7r3vg7a28e87v357njvqh8c2gty@9cd590936360e86c -->
-<!-- section-name: Write a test only at operator request (scope: platform) -->
+<!-- station-section:gh7ra7r3vg7a28e87v357njvqh8c2gty@2dfb4167d56b5b2c -->
+<!-- section-name: Ban code tests without operator request (scope: platform) -->
 Write a test only at the operator request.
 
-Do not create, change, or remove a test without that request.
+Do not create, or change a test without that request.
 
 Design each test with the operator. Agree the scenario, the expected result, and the harmful regression that the test prevents.
 
@@ -147,31 +107,59 @@ The approval record must name these five items:
 4. The scenario.
 5. The expected result.
 
-A test without a complete approval record is not approved. Remove it when you find it.
+A test without a complete approval record is not approved. For any test that fails or needs to be edit it you MUST first check docs/tests for the test along with cited Grill. If there is no docs/tests entry + Grill citation you are authorized and mandated to remove it immediately similar to how comments must be removed on-sight.
 <!-- /station-section:gh7ra7r3vg7a28e87v357njvqh8c2gty -->
 
-<!-- station-section:gh7q9p8bafyk0jsnn298e0keq58cyd6a@0ccaede6b9327e02 -->
-<!-- section-name: Keep a skill to method, not to tool description (scope: platform) -->
-A skill states why, when, and the approach.
+<!-- station-section:gh7vqepsfmry6a33p6rt6wv3kd8d7nnc@0bf9c4e89e436145 -->
+<!-- section-name: Strict NO Legacy Policy - No Compatibility Layers for Legacy, Legacy Data MUST be Migrated, and Narrow Must be Completed (scope: platform) -->
+Use only the current architecture, data model, interfaces, names, and behavior.
 
-A skill can mandate a tool, place the tool in the workflow, and instruct what to pass.
+Legacy support includes code, data, schemas, interfaces, names, flags, fallbacks, or paths kept for old or deprecated consumers.
 
-Write each of these as an action at a moment. Do not write it as a description of the tool.
+Do not add or keep legacy support.
 
-Do not state the tool's capabilities. Do not state what the tool returns.
+Do not build compatibility layers, adapters, shims, fallbacks, aliases, bridges, deprecated entry points, or parallel old paths.
 
-Do not restate what the tool already requires and rejects.
+Complete every change through the full widen-migrate-narrow sequence:
 
-Do not restate a rule that already applies to every agent.
+1. Widen the current system only as required for the migration.
+2. Migrate all stored data, callers, interfaces, and runtime behavior to the current system.
+3. Remove all old schemas, data, code, paths, names, flags, and behavior.
+4. Verify that only the current system remains.
 
-Do not add a rule against behavior that an agent does not do.
+Temporary migration code can exist only during the active change.
 
-Reference a skill by its name. Do not reference a skill by a file path.
+Remove all temporary migration code before you complete the change.
 
-A path reaches one file. A skill reaches its complete method.
+Do not ship, merge, deploy, or leave an incomplete widen-migrate-narrow sequence.
 
-A file path belongs only inside the skill that owns the file.
-<!-- /station-section:gh7q9p8bafyk0jsnn298e0keq58cyd6a -->
+If you find possible legacy support or backward compatibility, do these actions immediately:
+
+1. Check `docs/legacy` for an approved entry that covers the exact behavior.
+2. Treat an absent folder, absent entry, or unclear entry as no approval.
+3. Remove the behavior in the current session when no exact approved entry exists.
+4. Complete the full widen-migrate-narrow sequence for each affected schema or data change.
+
+Existing code and repository history do not approve legacy support.
+
+If holistic removal is not possible, stop before you preserve the legacy behavior.
+
+Explain the constraint and its full effects to the Operator.
+
+Ask the Operator for an explicit exception.
+
+If the Operator approves the exception, create a `docs/legacy` entry.
+
+Record the exact behavior, constraint, affected surfaces, risks, owner, and removal condition.
+
+Do not create the folder or entry without that approval.
+
+The approved entry is the sole authority for the exception.
+
+Fix or remove all other legacy behavior in the current session.
+
+When working with packages, version labels do NOT decide adoption; implementation shape does. Always prerelease when it contains the next architecture or interface, you're permissed to prefer stable when the prerelease changes no implementation shape.
+<!-- /station-section:gh7vqepsfmry6a33p6rt6wv3kd8d7nnc -->
 
 <!-- station-section:gh7wb6m6b449216dy51ne5tr6x8czjzw@99a4737f6002c49f -->
 <!-- section-name: Test Item cleanup (scope: project) -->
