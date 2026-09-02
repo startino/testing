@@ -8,6 +8,7 @@
     "test": "node scripts/test-all.mjs",
     "doctor": "node scripts/doctor.mjs",
     "pulse": "node scripts/pulse.mjs",
+    "task-count": "node tools/task-count/task-count.mjs",
     "gen:docs": "node scripts/gen-toolbox-readme.mjs",
     "check:docs": "node scripts/gen-toolbox-readme.mjs --check",
     "gen:catalog": "node scripts/gen-catalog.mjs",
