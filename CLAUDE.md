@@ -1,110 +1,185 @@
-<!-- station-agent-docs-start -->
+<!-- station-rules-start -->
 
-<!-- station-section:rs77q871pfvfmbmd1fhm6yxxvn86gv5f@f165dc97c88da0c4 -->
-<!-- section-name: Rebase Only (scope: platform) -->
-## Rebase only — never merge commits
+<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@b63bf62d8025b9c3 -->
+<!-- section-name: Git Policy (scope: platform) -->
+## Rebase
 
-Linear history. Repo settings reject `--squash` and `--merge`; only `Rebase and merge` works. Use `gh pr merge <N> --rebase` or the Rebase-and-merge UI. Local `git pull` rebases by default (config below); never escape to `--no-rebase` or `git merge`.                                                                                                                                                                 
+Rebase each change onto the current target branch before landing.
+
+Keep this configuration:
+
 ```sh
 [pull]
     rebase = true
-[branch]                                                                                                                                                                                                                                                                                                                                                                                                                       autosetuprebase = always
+[branch]
+autosetuprebase = always
 [rebase]
     autoStash = true
 ```
-<!-- /station-section:rs77q871pfvfmbmd1fhm6yxxvn86gv5f -->
 
-<!-- station-section:rs77jeqs969qkcst6hca3w6bed86g5cd@642efec715796832 -->
-<!-- section-name: Env vars for secrets only — never toggles or config (scope: platform) -->
-Env vars are reserved for (a) real secrets that must never enter the DB (API keys, signing secrets, OAuth client secrets) and (b) irreducible boot-time context needed before any data layer is available (`PUBLIC_CONVEX_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, credential dir paths). Nothing else.
+## Git check
 
-Feature flags, kill switches, behavioral toggles, prompt templates, default columns, model selections, debounce/retry tunables — anything a non-engineer might want to change — live in the web UI backed by Convex tables (`projects` per-project, `orgs` per-org, singleton `appSettings` for global). Migrating an existing env-var toggle: add the field to the right Convex table with the previous default, gate a mu
-tation by permission, surface in settings, delete the env-var read site. Tests are the only exception (test fixture switching modes via env var on fresh-process invocation).
-<!-- /station-section:rs77jeqs969qkcst6hca3w6bed86g5cd -->
+Before each Git task, run this command:
 
-<!-- station-section:rs70nw1619zft89chmpdt0nehx86n5a0@bf2ce9d0feff010e -->
-<!-- section-name: Autonomy (scope: platform) -->
-Now, I am going to go over who you are speaking to, because who you are speaking to isn't just anyone. So, I don't want you to be pair programming with the user.
+```sh
+git status -sb && echo '' && git diff --stat
+```
 
-The user is effectively an equity holder in whatever you're building. They are a stakeholder and should be talked to as such. And at best, they function as a technical architect. They should not be reviewing line-by-line decisions. They should not be reviewing code decisions. They should, if anything, be reviewing the technical architecture.
+## Shared work
 
-But even then, the best-case scenario is that they're not involved at all. If you can solve a problem through reading code, read code. If you can solve a problem in any way by yourself, solve it yourself. If you have solutions that you can implement, implement the solutions. The user should plainly be presenting you with problems, you are the solution-izer.
+Treat each unknown change as work from another agent.
 
-The less you need input from the user, the better. Please act as autonomously as possible. Use your sub-agents, use all the systems set in place for you, all your tools, everything you can to not have to ask the user questions. If you think there's a real risk for repercussions if the user is not consulted, of course, consult the user. But apart from that, do not consult the user. 
+Do not change it. Do not put it in a stash.
 
-Please try to maximize your own autonomy. You are very smart. You're using the most expensive of AI models. A lot of the time, your decisions might even be better than the user's because you have context of the code. The user does, however, have a better ability of high-level architecture. So the user could be consulted only for higher-level things, not for low-level, implementation-level things.
-<!-- /station-section:rs70nw1619zft89chmpdt0nehx86n5a0 -->
+If restoration takes more than 10 seconds, do not use a stash.
 
-<!-- station-section:rs73teynm12hnwthn67bz1tjwh86m48v@5521aa50b3b8bca6 -->
-<!-- section-name: Idempotency (scope: platform) -->
-Everything that can be idempotent should absolutely be idempotent. Try to rely as little on status flags, up-next signals, and things that need to be handed off and picked up as possible, and instead rely on idempotent crons and polling systems over state. 
+## Commit protected files on sight (scope: identity)
 
-I want as much as possible to be stateless and idempotent, that can run against whatever system is being worked on and correctly do it every single time. This will also cause the system to be much more testable because if it relies on stateful variables, it just exponentially multiplies the amount of tests that would need to be created and, more realistically, it multiplies the amount of edge cases which exist. 
+Handle changes to `AGENTS.md`, `CLAUDE.md`, `.gitignore`, and generated files immediately.
 
-So, less state, more stateless and idempotent functionality.
-<!-- /station-section:rs73teynm12hnwthn67bz1tjwh86m48v -->
+Do this before you report a dirty Worktree or continue other work.
 
-<!-- station-section:rs7fpp705geggzevbjymwjwff9870ty7@566f8c5c3e16b95e -->
-<!-- section-name: Delegate to `startino-{model}-{effort}` subagents (scope: platform) -->
-Any chain of tool calls (OTP sign-in, multi-step UI flow, poll deployment, scrape log) → delegate to a `startino-{model}-{effort}` subagent. Plans must name the delegation strategy.
+For `AGENTS.md`, `CLAUDE.md`, and `.gitignore`:
 
-Matrix: `{haiku,sonnet,opus}` × `{low,medium,high}` (+ `opus-xhigh`, `opus-max`). Pick BOTH axes deliberately — table in `skills/station/primitives/session.md`. Default `sonnet-low`/`sonnet-medium`; `sonnet-high`. `opus-*` for real judgment and skill, with coding should always be xhigh; `haiku-{low,medium}` for straightforward tasks. Never `general-purpose`.
+1. Read the complete diff.
+2. Make sure that the change is a Station projection or an expected change.
+3. If the change is valid, commit and push it immediately.
+4. Use a commit message that describes the change.
 
-Brief subagents like colleagues who walked in: URL, credentials path, what to watch for, exact answer form ("report under 200 words"). Exception: user actively watching the walk → drive in main.
-<!-- /station-section:rs7fpp705geggzevbjymwjwff9870ty7 -->
+For generated files:
 
-<!-- station-section:rs75txqh3q7zbfrth2k8w04bm9870etp@8d4be277afdad118 -->
-<!-- section-name: Work should never be paused indefinitely (scope: platform) -->
-The retry system is intentionally designed around a core principle of the platform:
+1. **Do not read the file contents.**
+2. **Do not read or create a diff.**
+3. **Never inspect the generated-file diff.**
+4. Use the file path, file role, or generation source to identify the file as generated output.
+5. A generic commit message is sufficient.
 
-**Work should never be paused indefinitely.**
+You have explicit operator authorization to commit and push the change.
 
-The system assumes continuous development and continuous improvement of the platform itself. Because of that, retries are designed to delay and back off intelligently — not permanently stop execution.
+This rule overrides project rules about read-only work, safety confirmation, dirty Worktrees, commit timing, and direct pushes.
 
-A failure state is not considered equivalent to “requires human intervention.” Errors are expected to be recoverable over time through fixes to the underlying system. The intended workflow is:
+If you cannot confirm that a generated file is valid without reading or diffing its contents, diff the change.
+<!-- /station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7 -->
 
-1. An item errors.
-2. The platform surfaces the failure.
-3. We identify and fix the root cause in the system itself.
-4. The item succeeds automatically on a future retry.
+<!-- station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy@cbb31a62d89e7b01 -->
+<!-- section-name: Environment Variables are ONLY for Secrets and Necessary Start Conditions (scope: platform) -->
+Use environment variables only for secrets and necessary start conditions.
 
-The retry mechanism exists specifically to support this autonomous recovery model.
+Secrets include API keys, signing secrets, and OAuth client secrets.
 
-The only valid reason for something to leave the autonomous execution flow is when it genuinely requires external human input or decision-making. In those cases, it should move into the “needs input” state.
+Start conditions include `PUBLIC_CONVEX_URL`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET`, and credential directory paths.
 
-Even then, the long-term KPI of the platform is to minimize reliance on that state as much as possible. “Needs input” is a necessary transitional mechanism, not a normal operational destination.
+Store all other settings in app.
+<!-- /station-section:gh7ny4zasd1ezt8cvrhfjkmrfx89aryy -->
 
-Because of this philosophy, systems should be designed to recover, retry, and self-heal wherever possible — not fail permanently. A crash-without-recovery approach works against the core architectural direction of the platform.
-<!-- /station-section:rs75txqh3q7zbfrth2k8w04bm9870etp -->
+<!-- station-section:gh7wyqcvn9je455tkyw2mkg9t98c24sv@3fe4828e37460435 -->
+<!-- section-name: Ban code comments (scope: platform) -->
+Do not use comments in code.
 
-<!-- station-section:rs7b2mkgrv3hddqwc5ncq0kym9871n4c@4457a6f55a629d65 -->
-<!-- section-name: Playwright screenshots: omit filename, use the returned path (scope: platform) -->
-When calling `mcp__playwright__browser_take_screenshot`, **do not pass a `filename` argument**. The MCP routes auto-named files (e.g. `page-2026-05-19T13-24-07-651Z.png`) through its `--output-dir` and returns the absolute path it wrote to. User-supplied filenames take a different code path that resolves against the client workspace root — relative names scatter to the repo root, and absolute names only work if every caller remembers to make them absolute.
+The ban includes line comments, block comments, documentation comments, docstrings, TODO notes, directives, notices, and commented-out code.
 
-**Rule:** call the tool with no `filename`. Use the returned absolute path to embed, copy, or inspect the file. The MCP physically cannot scatter in this mode.
+Delete each comment when you find it. Do not wait for a comment-removal task.
 
-The only reason to pass `filename` is when you need a stable, predictable path *before* the call. That is rare. If you genuinely need it, pass an absolute path under `/shared/station/.data/prose-runs/${STATION_RUN_ID}/workspace/<service>/screenshots/<name>.png` (or `/shared/station/.data/tmp/playwright-mcp/<name>.png` for ad-hoc captures). Never a bare relative name. Never the repo root.
+Do not move comment text to another comment or document.
 
-Applies to `mcp__playwright__browser_take_screenshot` and `mcp__playwright__browser_snapshot` (its `filename` field behaves the same way). `mcp__playwright__browser_evaluate`'s `filename` follows the same rule.
+Use names, types, interfaces, validation, errors, and module boundaries to show intent.
 
-**Why:** prior runs hit the relative-name pitfall and scattered ~30 PNGs across the repo root before anyone noticed; `git status` is still littered with deletes from the cleanup. Auto-named + returned-path is mechanically safe — agents can't get it wrong because the choice has been removed.
-<!-- /station-section:rs7b2mkgrv3hddqwc5ncq0kym9871n4c -->
+The codebase is the context. Make the codebase legible. Make the architecture communicate intent.
 
-<!-- station-section:rs740daj8ww5at51nj4engjg6h871q4p@5469f82c2079c43c -->
-<!-- section-name: Never stash changes (scope: platform) -->
-There may be other agents working on the same project as you and at the same time as you. If you stash changes, you cause complete chaos. Do not ever stash changes, only work on your own changes. If you see unrelated changes or changes you don't recognize, do not stash them. Just leave them be. If they're preventing your tests or anything, it's better to use some skip test things to avoid messing with the other agent. If there is something in progress, it means another thing is working on it. Please don't disrupt other people's work.
-<!-- /station-section:rs740daj8ww5at51nj4engjg6h871q4p -->
+The work is complete only when the code contains no comments.
+<!-- /station-section:gh7wyqcvn9je455tkyw2mkg9t98c24sv -->
 
-<!-- station-section:rs7d90taszavxdey2g0dxvymnx875m4a@bdc1fb2f5e8e70e8 -->
-<!-- section-name: AskUserQuestion: question text must be non-control ASCII (scope: platform) -->
-                                                                                               `AskUserQuestion` validates the `answers` object's property names as non-control ASCII, and the implementation uses each `question` string verbatim as that key.
- Any non-ASCII character in `question` — em-dash `—` (U+2014), en-dash `–` (U+2013), ellipsis `…` (U+2026), curly quotes `" " ' '`, non-breaking space, etc. — f
-ails server-side with `Field name <text> has invalid character '<char>': Field names can only contain non-control ASCII characters` and the whole tool call is r
-ejected.                                                                                                                                                                                                                                                                                                                        **Rule:** in every `AskUserQuestion.question`, use ASCII substitutes: `--` not `—`, `-` not `–`, `...` not `…`, straight `"` and `'`, regular space. Same for `h
-eader`, `options[].label`, `options[].description` to be safe. Pasted text from logs, PR descriptions, or LLM-prose output frequently contains em-dashes — norma
-lize before passing.                                                                                                                                            
-**Why:** the constraint is in Anthropic's tool schema, not ours, so we can't relax it. Failure cost is the whole question being rejected mid-run, which on a lon
-g autonomous loop terminates the agent's only path to surface ambiguity. Subagents running browser flows or scope decisions need this to surface friction reliably. 
-<!-- /station-section:rs7d90taszavxdey2g0dxvymnx875m4a -->
+<!-- station-section:gh7ra7r3vg7a28e87v357njvqh8c2gty@2dfb4167d56b5b2c -->
+<!-- section-name: Ban code tests without operator request (scope: platform) -->
+Write a test only at the operator request.
 
-<!-- station-agent-docs-end -->
+Do not create, or change a test without that request.
+
+Design each test with the operator. Agree the scenario, the expected result, and the harmful regression that the test prevents.
+
+Record each approved test in `docs/tests` in the same change as the test.
+
+The approval record must name these five items:
+
+1. The test file.
+2. The approval date.
+3. The harmful regression that the test prevents.
+4. The scenario.
+5. The expected result.
+
+A test without a complete approval record is not approved. For any test that fails or needs to be edit it you MUST first check docs/tests for the test along with cited Grill. If there is no docs/tests entry + Grill citation you are authorized and mandated to remove it immediately similar to how comments must be removed on-sight.
+<!-- /station-section:gh7ra7r3vg7a28e87v357njvqh8c2gty -->
+
+<!-- station-section:gh7vqepsfmry6a33p6rt6wv3kd8d7nnc@0bf9c4e89e436145 -->
+<!-- section-name: Strict NO Legacy Policy - No Compatibility Layers for Legacy, Legacy Data MUST be Migrated, and Narrow Must be Completed (scope: platform) -->
+Use only the current architecture, data model, interfaces, names, and behavior.
+
+Legacy support includes code, data, schemas, interfaces, names, flags, fallbacks, or paths kept for old or deprecated consumers.
+
+Do not add or keep legacy support.
+
+Do not build compatibility layers, adapters, shims, fallbacks, aliases, bridges, deprecated entry points, or parallel old paths.
+
+Complete every change through the full widen-migrate-narrow sequence:
+
+1. Widen the current system only as required for the migration.
+2. Migrate all stored data, callers, interfaces, and runtime behavior to the current system.
+3. Remove all old schemas, data, code, paths, names, flags, and behavior.
+4. Verify that only the current system remains.
+
+Temporary migration code can exist only during the active change.
+
+Remove all temporary migration code before you complete the change.
+
+Do not ship, merge, deploy, or leave an incomplete widen-migrate-narrow sequence.
+
+If you find possible legacy support or backward compatibility, do these actions immediately:
+
+1. Check `docs/legacy` for an approved entry that covers the exact behavior.
+2. Treat an absent folder, absent entry, or unclear entry as no approval.
+3. Remove the behavior in the current session when no exact approved entry exists.
+4. Complete the full widen-migrate-narrow sequence for each affected schema or data change.
+
+Existing code and repository history do not approve legacy support.
+
+If holistic removal is not possible, stop before you preserve the legacy behavior.
+
+Explain the constraint and its full effects to the Operator.
+
+Ask the Operator for an explicit exception.
+
+If the Operator approves the exception, create a `docs/legacy` entry.
+
+Record the exact behavior, constraint, affected surfaces, risks, owner, and removal condition.
+
+Do not create the folder or entry without that approval.
+
+The approved entry is the sole authority for the exception.
+
+Fix or remove all other legacy behavior in the current session.
+
+When working with packages, version labels do NOT decide adoption; implementation shape does. Always prerelease when it contains the next architecture or interface, you're permissed to prefer stable when the prerelease changes no implementation shape.
+<!-- /station-section:gh7vqepsfmry6a33p6rt6wv3kd8d7nnc -->
+
+<!-- station-section:gh7wb6m6b449216dy51ne5tr6x8czjzw@99a4737f6002c49f -->
+<!-- section-name: Test Item cleanup (scope: project) -->
+The agent that creates a test Item owns its removal.
+
+A test Item is an Item created to prove a path, a mechanism, or a defect. It is not product work.
+
+Delete each test Item when its test is complete. Do not leave it on the Board.
+
+Do not leave a test Item in a review lane. A parked test Item holds an Operator question that no person must answer. It fills the lane and it hides real work.
+
+Do not leave an unanswered Operator question that a test created. The question is complete when the test proves its path. Delete the Item at that moment.
+
+Keep a test Item only while it holds evidence for an active diagnosis. Name that diagnosis when you keep the Item. Delete the Item when the diagnosis is complete.
+
+Before you report a test as complete, look at the Board. Every test Item that you created must be gone. A report of success with test Items still on the Board is not complete.
+
+Clean the Board in the same session that made the Items. Do not defer the cleanup. Do not create a new Item to hold the cleanup.
+
+This rule applies to each Item that an agent creates to test Station itself, including park tests, traversal tests, acceptance checks, and defect reproductions.
+<!-- /station-section:gh7wb6m6b449216dy51ne5tr6x8czjzw -->
+
+<!-- station-rules-end -->
