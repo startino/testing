@@ -1,11 +1,6 @@
 # Station runtime state — per-session, not source
 .station/
 
-# Prose VM run artifacts, should never land in a project repo
-.prose/
-runs/
-.agents/prose/runs/
-
 # Installed dependencies — never source. The self-contained src/ modules install
 # their own devDeps and never commit a lockfile; web/ is the deployable app (ADR
 # 0002) and DOES commit web/package-lock.json for reproducible builds, so the

@@ -5,7 +5,6 @@
 **Item:** j571bvgr2sdr5ba8sardtjs9w5892vvh
 **Project:** testing (jx75hdtjz30edfd9tt1xnzchvd877ac8)
 **Org:** jd70cbrtvqndraj07ebe09a56d860esj
-**Program:** jn79hsws851zcf9aj8v34j8fv9861e2v
 **Verdict:** PASS
 
 ## What this verifies
@@ -42,13 +41,6 @@ expected heading for example.com. PASS.
 A single `agent_browser_screenshot` call was made with NO `path` argument, so it
 wrote to the shim's per-browserId default `screenshotDir` (under this run's
 workspace) and returned the absolute saved path natively in its text content.
-
-- Original tool-returned absolute path (provenance), verbatim from the
-  `agent_browser_screenshot` text content:
-
-```
-/shared/station/.data/prose-runs/k57a510pyw5jd83t40yrrs3nxh893x7b/workspace/agent-browser/screenshots/station-browser-mcp/station-k57a510pyw5jd83t40yrrs3nxh893x7b-2eb5343a/screenshot-1782044918713.png
-```
 
 - Committed into the repo for durable PR proof at:
   [`assets/0002-example-com.png`](assets/0002-example-com.png)

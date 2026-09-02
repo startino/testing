@@ -51,12 +51,6 @@ screenshot below captures this exact state: nav "Slugify" active, the `src/slug`
 chip in the description, the input holding `Ünïcode ✨ tëst`, and the preview
 showing `unicode-test`. PASS.
 
-- Original tool-returned absolute screenshot path (provenance):
-
-```
-/shared/station/.data/prose-runs/k576b29wtq2mvmgwq4m0fch6ws8a901d/workspace/agent-browser/screenshots/station-browser-mcp/station-k576b29wtq2mvmgwq4m0fch6ws8a901d-slugvfy1/screenshot-1783697370209.png
-```
-
 - Committed into the repo for durable PR proof at:
   [`assets/0003-slugify-playground.png`](assets/0003-slugify-playground.png)
 

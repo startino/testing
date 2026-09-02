@@ -1,8 +1,7 @@
 # Contributing
 
 This is a disposable **Station** sandbox: a deliberately throwaway project that
-exists so Station can exercise its Prose programs (`fix`, `feature`, `test`,
-`dod`, `report`, `explore`, `design`, `config`) end-to-end against a
+exists so Station can exercise Item Processes end-to-end against a
 real-but-expendable repo, instead of polluting Station's own Kanban board and git
 history. Nothing here is precious — the repo itself stays, but its *contents* are
 disposable. Treat [`README.md`](./README.md) and `.gitignore` as the stable
