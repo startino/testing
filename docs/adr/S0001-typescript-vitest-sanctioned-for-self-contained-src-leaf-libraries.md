@@ -1,7 +1,7 @@
 ---
 number: 1
 title: TypeScript + vitest sanctioned for self-contained src/ leaf libraries
-status: accepted
+status: current
 relations: {}
 date: 2026-07-05
 tags: [src, typescript, vitest, tooling, convention, leaf-library]
@@ -9,7 +9,7 @@ tags: [src, typescript, vitest, tooling, convention, leaf-library]
 
 # TypeScript + vitest sanctioned for self-contained src/ leaf libraries
 
-**Status:** Accepted
+**Status:** Current
 
 The operator explicitly requested a "well-typed" async `retry` utility at `src/retry/` written in **TypeScript** with a **vitest** suite. This is the first TypeScript + vitest module on the `src/` module track, which until now has been uniformly `.mjs` + JSDoc + native `node --test` with zero tooling (the incumbent "proven `src/unicode/` shape" fixed by ADR 0001 and CONTEXT.md). We record here that TypeScript + vitest is a **sanctioned option** for a self-contained leaf library under `src/` when the deliverable calls for it. This is **scoped-permissive, not blanket-mandating**: it does NOT make TypeScript the `src/` default, and it does NOT deprecate or oblige migration of the existing JSDoc/`.mjs`/`node --test` siblings (`flags`, `slug`, `unicode`, and any others). The incumbent zero-tooling shape remains fully valid and the recommended default for a module that does not need a compiler or test-runner; TypeScript + vitest is the sanctioned choice when a module wants that toolchain.
 
