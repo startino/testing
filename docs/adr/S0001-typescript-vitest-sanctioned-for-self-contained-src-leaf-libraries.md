@@ -1,6 +1,6 @@
 ---
 number: 1
-title: TypeScript + vitest sanctioned for self-contained src/ leaf libraries
+title: TypeScript leaf libraries
 status: current
 relations: {}
 date: 2026-07-05
