@@ -161,6 +161,11 @@ Fix or remove all other legacy behavior in the current session.
 When working with packages, version labels do NOT decide adoption; implementation shape does. Always prerelease when it contains the next architecture or interface, you're permissed to prefer stable when the prerelease changes no implementation shape.
 <!-- /station-section:gh7vqepsfmry6a33p6rt6wv3kd8d7nnc -->
 
+<!-- station-section:gh7zavms874sbks5qpxjy6mwfd8e2tsd@488d4320c5bb1f98 -->
+<!-- section-name: Own target-branch reconciliation (scope: platform) -->
+The agent parking an Item owns reconciliation of its target branch until Station accepts the park. This includes authority to update the target branch’s existing checkout outside the Activated Worktree.
+<!-- /station-section:gh7zavms874sbks5qpxjy6mwfd8e2tsd -->
+
 <!-- station-section:gh7wb6m6b449216dy51ne5tr6x8czjzw@99a4737f6002c49f -->
 <!-- section-name: Test Item cleanup (scope: project) -->
 The agent that creates a test Item owns its removal.
