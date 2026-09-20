@@ -27,6 +27,8 @@ AUTH.*.md
 *.STATION_AUTO_MANAGED_DO_NOT_EDIT.md
 .mcp.json
 .agents/
+.codex/agents/
+.codex/.agents-projection.lock
 .claude/
 .codex/config.toml
 .station/

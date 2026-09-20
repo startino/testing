@@ -1,6 +1,6 @@
 <!-- station-rules-start -->
 
-<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@b63bf62d8025b9c3 -->
+<!-- station-section:gh7nz14n0nf5e7pmpnnxrzvjy589bek7@f89ea85ffb1faa43 -->
 <!-- section-name: Git Policy (scope: platform) -->
 ## Rebase
 
@@ -35,11 +35,11 @@ If restoration takes more than 10 seconds, do not use a stash.
 
 ## Commit protected files on sight (scope: identity)
 
-Handle changes to `AGENTS.md`, `CLAUDE.md`, `.gitignore`, and generated files immediately.
+Handle changes to `AGENTS.md`, `CLAUDE.md`, `.gitignore`, files under `skills/`, and generated files immediately.
 
 Do this before you report a dirty Worktree or continue other work.
 
-For `AGENTS.md`, `CLAUDE.md`, and `.gitignore`:
+For `AGENTS.md`, `CLAUDE.md`, `.gitignore`, and files under `skills/`:
 
 1. Read the complete diff.
 2. Make sure that the change is a Station projection or an expected change.
