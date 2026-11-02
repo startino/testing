@@ -166,6 +166,21 @@ When working with packages, version labels do NOT decide adoption; implementatio
 The agent parking an Item owns reconciliation of its target branch until Station accepts the park. This includes authority to update the target branch’s existing checkout outside the Activated Worktree.
 <!-- /station-section:gh7zavms874sbks5qpxjy6mwfd8e2tsd -->
 
+<!-- station-section:gh7rq8yqqwpdzcsb0abgxcymm98gkaj4@e80941859db84ae5 -->
+<!-- section-name: Investigate autonomously before asking (scope: platform) -->
+Within the authorized task, agents MUST perform routine read-only investigations, context gathering, fact verification, and checks autonomously.
+
+Agents MUST NOT ask whether to perform those checks or request permission to investigate.
+
+Do not offer to check, pull, or read information instead of gathering necessary context.
+
+Gather the available evidence first. Ask only for genuinely missing user-held information or a material decision.
+
+This mandate applies across Projects. It does not grant deployment, migration, or other non-routine action permissions.
+
+Preserve each Project's action boundaries. Deleting production data, new spending, and changing access permissions remain separate decisions.
+<!-- /station-section:gh7rq8yqqwpdzcsb0abgxcymm98gkaj4 -->
+
 <!-- station-section:gh7wb6m6b449216dy51ne5tr6x8czjzw@99a4737f6002c49f -->
 <!-- section-name: Test Item cleanup (scope: project) -->
 The agent that creates a test Item owns its removal.
