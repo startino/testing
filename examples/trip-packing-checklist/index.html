@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Trip packing checklist</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1>Trip packing checklist</h1>
+      </header>
+
+      <p id="storage-notice" class="notice" aria-live="polite" aria-atomic="true"></p>
+
+      <noscript>
+        <p class="notice">This checklist needs JavaScript to run.</p>
+      </noscript>
+
+      <section class="panel" aria-labelledby="progress-heading">
+        <h2 id="progress-heading" class="visually-hidden">Progress</h2>
+        <p id="progress-text" class="progress-text" aria-live="polite" aria-atomic="true"></p>
+        <progress id="progress-bar" class="progress-bar" aria-labelledby="progress-text"></progress>
+      </section>
+
+      <section class="panel" aria-labelledby="add-heading">
+        <h2 id="add-heading">Add an item</h2>
+        <form id="add-form" class="add-form" autocomplete="off" novalidate>
+          <div class="field field-name">
+            <label for="item-name">Item name</label>
+            <input id="item-name" type="text" aria-describedby="form-message">
+          </div>
+          <div class="field">
+            <label for="item-category">Category</label>
+            <select id="item-category"></select>
+          </div>
+          <button type="submit" class="button button-primary">Add item</button>
+        </form>
+        <p id="form-message" class="form-message" aria-live="polite" aria-atomic="true"></p>
+      </section>
+
+      <section class="list-section" aria-labelledby="list-heading">
+        <h2 id="list-heading">Your list</h2>
+
+        <div class="toolbar">
+          <fieldset class="filter">
+            <legend>Show</legend>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input type="radio" name="filter" value="all">
+                <span>All</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="filter" value="to-pack">
+                <span>To pack</span>
+              </label>
+              <label class="filter-option">
+                <input type="radio" name="filter" value="packed">
+                <span>Packed</span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div class="list-actions">
+            <button id="clear-packed" type="button" class="button">Clear packed</button>
+            <button id="start-over" type="button" class="button">Start over</button>
+          </div>
+        </div>
+
+        <p id="empty-state" class="empty-state" aria-live="polite" aria-atomic="true"></p>
+        <div id="groups" class="groups"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
